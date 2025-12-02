@@ -1,0 +1,314 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   PhonicsQuest 글로벌 스타일
+   ============================================ */
+
+/* 기본 폰트 및 스크롤 설정 */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 스크롤바 커스터마이징 */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fbbf24;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #f59e0b;
+}
+
+/* 선택 영역 스타일 */
+::selection {
+  background: #fde68a;
+  color: #78350f;
+}
+
+/* 포커스 링 스타일 */
+*:focus-visible {
+  outline: 3px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+/* 버튼 터치 피드백 제거 */
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 3D 변환을 위한 perspective */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* 카드 뒤집기 애니메이션 */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* 그라데이션 텍스트 */
+.gradient-text {
+  background: linear-gradient(135deg, #fbbf24, #f97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* 부드러운 그림자 효과 */
+.shadow-soft {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* 네온 글로우 효과 */
+.glow-amber {
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.5);
+}
+
+/* 물결 애니메이션 */
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-wave {
+  animation: wave 2s ease-in-out infinite;
+}
+
+/* 글자 하나씩 바운스 애니메이션 */
+.letter-bounce > span {
+  display: inline-block;
+  animation: letterBounce 0.5s ease-in-out;
+}
+
+@keyframes letterBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* 반짝이는 별 효과 */
+@keyframes twinkle {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.8);
+  }
+}
+
+.animate-twinkle {
+  animation: twinkle 1.5s ease-in-out infinite;
+}
+
+/* 무지개 배경 애니메이션 */
+@keyframes rainbow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.bg-rainbow {
+  background: linear-gradient(
+    270deg,
+    #ff6b6b,
+    #feca57,
+    #48dbfb,
+    #ff9ff3,
+    #54a0ff
+  );
+  background-size: 400% 400%;
+  animation: rainbow 8s ease infinite;
+}
+
+/* 페이지 전환 애니메이션 */
+.page-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-exit {
+  opacity: 1;
+}
+
+.page-exit-active {
+  opacity: 0;
+  transition: opacity 300ms;
+}
+
+/* 모바일 안전 영역 */
+.safe-area-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 터치 스크롤 개선 */
+.touch-scroll {
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+/* 이미지 드래그 방지 */
+img {
+  -webkit-user-drag: none;
+  user-select: none;
+}
+
+/* 로딩 애니메이션 - 점 */
+.loading-dots::after {
+  content: '';
+  animation: loadingDots 1.5s infinite;
+}
+
+@keyframes loadingDots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+  100% { content: ''; }
+}
+
+/* 버튼 클릭 효과 */
+.btn-press:active {
+  transform: scale(0.95);
+}
+
+/* 레이어 */
+@layer components {
+  /* 카드 기본 스타일 */
+  .card {
+    @apply bg-white rounded-kid shadow-kid p-5;
+  }
+
+  /* 버튼 기본 스타일 */
+  .btn {
+    @apply inline-flex items-center justify-center font-bold rounded-kid transition-all duration-200;
+  }
+
+  .btn-primary {
+    @apply bg-gradient-to-r from-amber-400 to-orange-500 text-white hover:from-amber-500 hover:to-orange-600;
+  }
+
+  /* 입력 필드 */
+  .input {
+    @apply w-full px-4 py-3 rounded-kid border-2 border-gray-200 focus:border-amber-400 focus:ring-4 focus:ring-amber-100 outline-none transition-all;
+  }
+
+  /* 태그 */
+  .tag {
+    @apply inline-block px-3 py-1 rounded-full text-sm font-medium;
+  }
+
+  .tag-amber {
+    @apply bg-amber-100 text-amber-700;
+  }
+
+  .tag-blue {
+    @apply bg-blue-100 text-blue-700;
+  }
+
+  .tag-green {
+    @apply bg-green-100 text-green-700;
+  }
+}
+
+/* 반응형 텍스트 크기 */
+@layer utilities {
+  .text-responsive-sm {
+    @apply text-sm sm:text-base;
+  }
+
+  .text-responsive-base {
+    @apply text-base sm:text-lg;
+  }
+
+  .text-responsive-lg {
+    @apply text-lg sm:text-xl md:text-2xl;
+  }
+
+  .text-responsive-xl {
+    @apply text-xl sm:text-2xl md:text-3xl;
+  }
+
+  .text-responsive-2xl {
+    @apply text-2xl sm:text-3xl md:text-4xl;
+  }
+}
+
+/* PWA 설치 프롬프트용 */
+.pwa-install-prompt {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+}
+
+/* 다크 모드 (추후 구현용) */
+@media (prefers-color-scheme: dark) {
+  /* 다크 모드 스타일은 추후 추가 */
+}
+
+/* 프린트 스타일 */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
+
+/* 접근성 - 움직임 감소 선호 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
