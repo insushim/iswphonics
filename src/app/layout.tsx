@@ -74,6 +74,8 @@ export default function RootLayout({
           crossOrigin="anonymous"
           href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
         />
+        {/* PWA 메타 태그 */}
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
       <body className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50">
         <Providers>{children}</Providers>

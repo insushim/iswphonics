@@ -5,7 +5,7 @@
 // 콘텐츠를 담는 재사용 가능한 카드 컨테이너
 // ============================================
 
-import { forwardRef, HTMLAttributes } from 'react';
+import { forwardRef, HTMLAttributes, ReactNode } from 'react';
 import { motion, HTMLMotionProps } from 'framer-motion';
 import { cn } from '@/lib/utils';
 
@@ -188,10 +188,11 @@ CardFooter.displayName = 'CardFooter';
 /**
  * 학습 카드 (특별한 스타일링)
  */
-interface LearningCardProps extends CardProps {
+interface LearningCardProps extends Omit<CardProps, 'children'> {
   emoji?: string;
   title: string;
   description?: string;
+  children?: ReactNode;
 }
 
 export function LearningCard({

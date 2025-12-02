@@ -86,8 +86,25 @@ export function SpeakingPractice({
     setError(null);
     setResult(null);
 
+    // 먼저 마이크 스트림 가져오기
+    let stream: MediaStream | null = null;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true,
+        }
+      });
+    } catch (err) {
+      console.error('마이크 접근 실패:', err);
+      setError('마이크에 접근할 수 없습니다. 마이크 권한을 확인해주세요.');
+      return;
+    }
+
     const success = await recorder.start();
     if (!success) {
+      stream?.getTracks().forEach(track => track.stop());
       setError('마이크에 접근할 수 없습니다. 마이크 권한을 확인해주세요.');
       return;
     }
@@ -96,21 +113,23 @@ export function SpeakingPractice({
 
     // 오디오 레벨 분석 시작
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const newAnalyzer = new AudioLevelAnalyzer();
       await newAnalyzer.init(stream);
       setAnalyzer(newAnalyzer);
 
       // 레벨 업데이트
+      let animationId: number;
       const updateLevel = () => {
         if (recorder.isRecording()) {
-          setAudioLevel(newAnalyzer.getLevel());
-          requestAnimationFrame(updateLevel);
+          const level = newAnalyzer.getLevel();
+          setAudioLevel(level);
+          animationId = requestAnimationFrame(updateLevel);
         }
       };
       updateLevel();
     } catch (err) {
       console.error('오디오 분석 실패:', err);
+      // 분석 실패해도 녹음은 계속
     }
   };
 
@@ -201,31 +220,60 @@ export function SpeakingPractice({
 
       {/* 녹음 영역 */}
       <div className="relative">
-        {/* 오디오 레벨 시각화 */}
+        {/* 오디오 레벨 시각화 - 파동 효과 */}
         <AnimatePresence>
           {state === 'recording' && (
-            <motion.div
-              className="absolute inset-0 -m-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-            >
-              {[...Array(3)].map((_, i) => (
-                <motion.div
-                  key={i}
-                  className="absolute inset-0 rounded-full border-4 border-red-300"
-                  animate={{
-                    scale: [1, 1.2 + (audioLevel / 100) * 0.5 * (i + 1)],
-                    opacity: [0.6, 0],
-                  }}
-                  transition={{
-                    duration: 1,
-                    repeat: Infinity,
-                    delay: i * 0.2,
-                  }}
-                />
-              ))}
-            </motion.div>
+            <>
+              {/* 레벨 바 표시 */}
+              <motion.div
+                className="absolute -top-16 left-1/2 transform -translate-x-1/2 flex items-end gap-1 h-12"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {[...Array(7)].map((_, i) => {
+                  const barLevel = Math.max(0, audioLevel - (i * 10));
+                  return (
+                    <motion.div
+                      key={i}
+                      className="w-2 bg-gradient-to-t from-red-500 to-red-300 rounded-full"
+                      animate={{
+                        height: Math.max(8, barLevel * 0.5),
+                      }}
+                      transition={{ duration: 0.1 }}
+                    />
+                  );
+                })}
+              </motion.div>
+
+              {/* 파동 효과 */}
+              <motion.div
+                className="absolute inset-0 -m-8"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+              >
+                {[...Array(3)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute inset-0 rounded-full border-4 border-red-400"
+                    style={{
+                      margin: -8 - i * 12,
+                    }}
+                    animate={{
+                      scale: [1, 1.1 + (audioLevel / 100) * 0.3],
+                      opacity: [0.5 - i * 0.15, 0],
+                    }}
+                    transition={{
+                      duration: 0.8,
+                      repeat: Infinity,
+                      delay: i * 0.15,
+                      ease: "easeOut",
+                    }}
+                  />
+                ))}
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
 

@@ -27,9 +27,21 @@ export function Providers({ children }: ProvidersProps) {
   const [isHydrated, setIsHydrated] = useState(false);
   const checkAndUpdateStreak = useUserStore((state) => state.checkAndUpdateStreak);
 
-  // 클라이언트 사이드 hydration 완료 대기
+  // Zustand persist hydration 완료 대기
   useEffect(() => {
-    setIsHydrated(true);
+    // Zustand persist가 완전히 로드될 때까지 대기
+    const unsubscribe = useUserStore.persist.onFinishHydration(() => {
+      setIsHydrated(true);
+    });
+
+    // 이미 hydration이 완료된 경우
+    if (useUserStore.persist.hasHydrated()) {
+      setIsHydrated(true);
+    }
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   // 스트릭 체크 (앱 시작 시)

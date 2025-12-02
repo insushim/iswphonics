@@ -1,6 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  output: 'export',
+  trailingSlash: true,
+  images: {
+    unoptimized: true,
+  },
   // PWA를 위한 헤더 설정
   async headers() {
     return [

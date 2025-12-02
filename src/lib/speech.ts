@@ -201,9 +201,30 @@ export class AudioRecorder {
       }
 
       this.audioChunks = [];
-      this.mediaRecorder = new MediaRecorder(this.stream, {
-        mimeType: 'audio/webm;codecs=opus',
-      });
+
+      // 지원되는 mimeType 확인
+      const mimeTypes = [
+        'audio/webm;codecs=opus',
+        'audio/webm',
+        'audio/ogg;codecs=opus',
+        'audio/mp4',
+        ''
+      ];
+
+      let selectedMimeType = '';
+      for (const mimeType of mimeTypes) {
+        if (mimeType === '' || MediaRecorder.isTypeSupported(mimeType)) {
+          selectedMimeType = mimeType;
+          break;
+        }
+      }
+
+      const options: MediaRecorderOptions = {};
+      if (selectedMimeType) {
+        options.mimeType = selectedMimeType;
+      }
+
+      this.mediaRecorder = new MediaRecorder(this.stream, options);
 
       this.mediaRecorder.ondataavailable = (event) => {
         if (event.data.size > 0) {
@@ -294,7 +315,7 @@ export class AudioLevelAnalyzer {
   private audioContext: AudioContext | null = null;
   private analyser: AnalyserNode | null = null;
   private source: MediaStreamAudioSourceNode | null = null;
-  private dataArray: Uint8Array | null = null;
+  private dataArray: Uint8Array<ArrayBuffer> | null = null;
 
   /**
    * 분석기 초기화

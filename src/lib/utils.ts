@@ -311,5 +311,5 @@ export const GRADIENT_COLORS = [
  * 랜덤 그라데이션 색상
  */
 export function randomGradient(): string {
-  return randomElement(GRADIENT_COLORS) || GRADIENT_COLORS[0];
+  return randomElement([...GRADIENT_COLORS]) || GRADIENT_COLORS[0];
 }

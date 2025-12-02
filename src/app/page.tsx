@@ -75,28 +75,22 @@ const LEARNING_MODES = [
  */
 export default function HomePage() {
   const router = useRouter();
-  const { profile, stats, settings, isInitialized } = useUserStore();
+  const { profile, stats, settings } = useUserStore();
   const getCurrentLevel = useUserStore((state) => state.getCurrentLevel);
-  const [isLoading, setIsLoading] = useState(true);
-
-  // 초기화 확인
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, []);
+  const [isReady, setIsReady] = useState(false);
 
   // 프로필이 없으면 온보딩으로
   useEffect(() => {
-    if (!isLoading && isInitialized && !profile) {
+    // Zustand가 hydrate된 후 체크
+    if (!profile) {
       router.push('/onboarding');
+    } else {
+      setIsReady(true);
     }
-  }, [isLoading, isInitialized, profile, router]);
+  }, [profile, router]);
 
-  // 로딩 중
-  if (isLoading || !profile) {
+  // 로딩 중 또는 프로필 없음
+  if (!isReady || !profile) {
     return <PageLoading />;
   }
 

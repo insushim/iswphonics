@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 /**
  * 프로그레스 바 색상 타입
  */
-type ProgressColor = 'amber' | 'green' | 'blue' | 'purple' | 'pink' | 'rainbow';
+export type ProgressColor = 'amber' | 'green' | 'blue' | 'purple' | 'pink' | 'rainbow' | 'red';
 
 /**
  * 프로그레스 바 Props
@@ -36,6 +36,7 @@ const colorStyles: Record<ProgressColor, string> = {
   purple: 'bg-gradient-to-r from-purple-400 to-pink-500',
   pink: 'bg-gradient-to-r from-pink-400 to-rose-500',
   rainbow: 'bg-gradient-to-r from-red-400 via-yellow-400 via-green-400 via-blue-400 to-purple-400',
+  red: 'bg-gradient-to-r from-red-400 to-red-600',
 };
 
 /**
@@ -154,6 +155,7 @@ export function CircularProgress({
     purple: ['#c084fc', '#ec4899'],
     pink: ['#f472b6', '#fb7185'],
     rainbow: ['#f87171', '#a855f7'],
+    red: ['#f87171', '#dc2626'],
   };
 
   const [startColor, endColor] = gradientColors[color];

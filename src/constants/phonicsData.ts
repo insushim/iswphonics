@@ -6,7 +6,6 @@
 import {
   AlphabetItem,
   PhonicsRule,
-  WordItem,
   DifficultyLevel,
   PhonicsCategory,
 } from '@/types';
@@ -44,10 +43,10 @@ export const ALPHABET_DATA: AlphabetItem[] = [
 ];
 
 /**
- * 파닉스 규칙 데이터
+ * 파닉스 규칙 데이터 - 모든 규칙 포함
  */
 export const PHONICS_RULES: PhonicsRule[] = [
-  // 자음 (Consonants)
+  // ========== 자음 (Consonants) - 21개 ==========
   {
     id: 'consonant-b',
     pattern: 'b',
@@ -60,6 +59,11 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'ball', pronunciation: '/bɔːl/', meaning: '공' },
       { word: 'bed', pronunciation: '/bɛd/', meaning: '침대' },
       { word: 'bus', pronunciation: '/bʌs/', meaning: '버스' },
+      { word: 'baby', pronunciation: '/beɪbi/', meaning: '아기' },
+      { word: 'book', pronunciation: '/bʊk/', meaning: '책' },
+      { word: 'bird', pronunciation: '/bɜːrd/', meaning: '새' },
+      { word: 'boy', pronunciation: '/bɔɪ/', meaning: '소년' },
+      { word: 'bag', pronunciation: '/bæg/', meaning: '가방' },
     ],
   },
   {
@@ -69,11 +73,35 @@ export const PHONICS_RULES: PhonicsRule[] = [
     koreanSound: '크',
     category: 'consonants',
     difficulty: 'beginner',
-    description: 'C는 보통 "크" 소리를 내지만, e, i, y 앞에서는 "스" 소리가 나요.',
+    description: 'C는 보통 "크" 소리를 내요. (cat, cup)',
     examples: [
       { word: 'cat', pronunciation: '/kæt/', meaning: '고양이' },
       { word: 'cup', pronunciation: '/kʌp/', meaning: '컵' },
       { word: 'car', pronunciation: '/kɑːr/', meaning: '자동차' },
+      { word: 'cake', pronunciation: '/keɪk/', meaning: '케이크' },
+      { word: 'can', pronunciation: '/kæn/', meaning: '캔' },
+      { word: 'cap', pronunciation: '/kæp/', meaning: '모자' },
+      { word: 'cow', pronunciation: '/kaʊ/', meaning: '소' },
+      { word: 'corn', pronunciation: '/kɔːrn/', meaning: '옥수수' },
+    ],
+  },
+  {
+    id: 'consonant-c-soft',
+    pattern: 'c (soft)',
+    sound: '/s/',
+    koreanSound: '스',
+    category: 'consonants',
+    difficulty: 'intermediate',
+    description: 'C가 e, i, y 앞에 오면 "스" 소리가 나요.',
+    examples: [
+      { word: 'city', pronunciation: '/sɪti/', meaning: '도시' },
+      { word: 'center', pronunciation: '/sɛntər/', meaning: '중심' },
+      { word: 'circle', pronunciation: '/sɜːrkl/', meaning: '원' },
+      { word: 'ice', pronunciation: '/aɪs/', meaning: '얼음' },
+      { word: 'face', pronunciation: '/feɪs/', meaning: '얼굴' },
+      { word: 'nice', pronunciation: '/naɪs/', meaning: '좋은' },
+      { word: 'rice', pronunciation: '/raɪs/', meaning: '쌀' },
+      { word: 'peace', pronunciation: '/piːs/', meaning: '평화' },
     ],
   },
   {
@@ -88,10 +116,300 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'dog', pronunciation: '/dɒg/', meaning: '개' },
       { word: 'door', pronunciation: '/dɔːr/', meaning: '문' },
       { word: 'dad', pronunciation: '/dæd/', meaning: '아빠' },
+      { word: 'duck', pronunciation: '/dʌk/', meaning: '오리' },
+      { word: 'day', pronunciation: '/deɪ/', meaning: '날' },
+      { word: 'doll', pronunciation: '/dɒl/', meaning: '인형' },
+      { word: 'desk', pronunciation: '/dɛsk/', meaning: '책상' },
+      { word: 'dance', pronunciation: '/dæns/', meaning: '춤' },
+    ],
+  },
+  {
+    id: 'consonant-f',
+    pattern: 'f',
+    sound: '/f/',
+    koreanSound: '프',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'F는 윗니를 아랫입술에 대고 바람을 내보내며 "프" 소리를 냅니다.',
+    examples: [
+      { word: 'fish', pronunciation: '/fɪʃ/', meaning: '물고기' },
+      { word: 'fun', pronunciation: '/fʌn/', meaning: '재미' },
+      { word: 'fan', pronunciation: '/fæn/', meaning: '선풍기' },
+      { word: 'five', pronunciation: '/faɪv/', meaning: '다섯' },
+    ],
+  },
+  {
+    id: 'consonant-g',
+    pattern: 'g',
+    sound: '/g/',
+    koreanSound: '그',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'G는 목 뒤쪽에서 "그" 소리를 냅니다.',
+    examples: [
+      { word: 'go', pronunciation: '/goʊ/', meaning: '가다' },
+      { word: 'game', pronunciation: '/geɪm/', meaning: '게임' },
+      { word: 'good', pronunciation: '/gʊd/', meaning: '좋은' },
+      { word: 'girl', pronunciation: '/gɜːrl/', meaning: '소녀' },
+    ],
+  },
+  {
+    id: 'consonant-g-soft',
+    pattern: 'g (soft)',
+    sound: '/dʒ/',
+    koreanSound: '쥐',
+    category: 'consonants',
+    difficulty: 'intermediate',
+    description: 'G가 e, i, y 앞에 오면 "쥐" 소리가 나요.',
+    examples: [
+      { word: 'gem', pronunciation: '/dʒɛm/', meaning: '보석' },
+      { word: 'giant', pronunciation: '/dʒaɪənt/', meaning: '거인' },
+      { word: 'gym', pronunciation: '/dʒɪm/', meaning: '체육관' },
+      { word: 'giraffe', pronunciation: '/dʒəræf/', meaning: '기린' },
+    ],
+  },
+  {
+    id: 'consonant-h',
+    pattern: 'h',
+    sound: '/h/',
+    koreanSound: '흐',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'H는 숨을 내쉬면서 "흐" 소리를 냅니다.',
+    examples: [
+      { word: 'hat', pronunciation: '/hæt/', meaning: '모자' },
+      { word: 'hot', pronunciation: '/hɒt/', meaning: '뜨거운' },
+      { word: 'house', pronunciation: '/haʊs/', meaning: '집' },
+      { word: 'happy', pronunciation: '/hæpi/', meaning: '행복한' },
+    ],
+  },
+  {
+    id: 'consonant-j',
+    pattern: 'j',
+    sound: '/dʒ/',
+    koreanSound: '쥐',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'J는 혀를 입천장에 대고 "쥐" 소리를 냅니다.',
+    examples: [
+      { word: 'jump', pronunciation: '/dʒʌmp/', meaning: '점프하다' },
+      { word: 'jam', pronunciation: '/dʒæm/', meaning: '잼' },
+      { word: 'jet', pronunciation: '/dʒɛt/', meaning: '제트기' },
+      { word: 'jelly', pronunciation: '/dʒɛli/', meaning: '젤리' },
+    ],
+  },
+  {
+    id: 'consonant-k',
+    pattern: 'k',
+    sound: '/k/',
+    koreanSound: '크',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'K는 목 뒤쪽에서 강하게 "크" 소리를 냅니다.',
+    examples: [
+      { word: 'kite', pronunciation: '/kaɪt/', meaning: '연' },
+      { word: 'key', pronunciation: '/kiː/', meaning: '열쇠' },
+      { word: 'kid', pronunciation: '/kɪd/', meaning: '아이' },
+      { word: 'king', pronunciation: '/kɪŋ/', meaning: '왕' },
+    ],
+  },
+  {
+    id: 'consonant-l',
+    pattern: 'l',
+    sound: '/l/',
+    koreanSound: '을',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'L은 혀끝을 윗니 뒤에 대고 "을" 소리를 냅니다.',
+    examples: [
+      { word: 'lion', pronunciation: '/laɪən/', meaning: '사자' },
+      { word: 'leg', pronunciation: '/lɛg/', meaning: '다리' },
+      { word: 'love', pronunciation: '/lʌv/', meaning: '사랑' },
+      { word: 'lake', pronunciation: '/leɪk/', meaning: '호수' },
+    ],
+  },
+  {
+    id: 'consonant-m',
+    pattern: 'm',
+    sound: '/m/',
+    koreanSound: '음',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'M은 입술을 다물고 코로 "음" 소리를 냅니다.',
+    examples: [
+      { word: 'mom', pronunciation: '/mɒm/', meaning: '엄마' },
+      { word: 'map', pronunciation: '/mæp/', meaning: '지도' },
+      { word: 'moon', pronunciation: '/muːn/', meaning: '달' },
+      { word: 'milk', pronunciation: '/mɪlk/', meaning: '우유' },
+    ],
+  },
+  {
+    id: 'consonant-n',
+    pattern: 'n',
+    sound: '/n/',
+    koreanSound: '은',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'N은 혀끝을 윗니 뒤에 대고 코로 "은" 소리를 냅니다.',
+    examples: [
+      { word: 'net', pronunciation: '/nɛt/', meaning: '그물' },
+      { word: 'name', pronunciation: '/neɪm/', meaning: '이름' },
+      { word: 'nose', pronunciation: '/noʊz/', meaning: '코' },
+      { word: 'night', pronunciation: '/naɪt/', meaning: '밤' },
+    ],
+  },
+  {
+    id: 'consonant-p',
+    pattern: 'p',
+    sound: '/p/',
+    koreanSound: '프',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'P는 입술을 붙였다가 터뜨리며 "프" 소리를 냅니다.',
+    examples: [
+      { word: 'pig', pronunciation: '/pɪg/', meaning: '돼지' },
+      { word: 'pen', pronunciation: '/pɛn/', meaning: '펜' },
+      { word: 'park', pronunciation: '/pɑːrk/', meaning: '공원' },
+      { word: 'play', pronunciation: '/pleɪ/', meaning: '놀다' },
+    ],
+  },
+  {
+    id: 'consonant-q',
+    pattern: 'qu',
+    sound: '/kw/',
+    koreanSound: '쿠',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'Q는 항상 U와 함께 와서 "쿠" 소리를 냅니다.',
+    examples: [
+      { word: 'queen', pronunciation: '/kwiːn/', meaning: '여왕' },
+      { word: 'quick', pronunciation: '/kwɪk/', meaning: '빠른' },
+      { word: 'quiet', pronunciation: '/kwaɪət/', meaning: '조용한' },
+      { word: 'quiz', pronunciation: '/kwɪz/', meaning: '퀴즈' },
+    ],
+  },
+  {
+    id: 'consonant-r',
+    pattern: 'r',
+    sound: '/r/',
+    koreanSound: '르',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'R은 혀를 뒤로 말아서 "르" 소리를 냅니다.',
+    examples: [
+      { word: 'run', pronunciation: '/rʌn/', meaning: '달리다' },
+      { word: 'red', pronunciation: '/rɛd/', meaning: '빨간색' },
+      { word: 'rain', pronunciation: '/reɪn/', meaning: '비' },
+      { word: 'rabbit', pronunciation: '/ræbɪt/', meaning: '토끼' },
+    ],
+  },
+  {
+    id: 'consonant-s',
+    pattern: 's',
+    sound: '/s/',
+    koreanSound: '스',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'S는 이를 다물고 바람을 내보내며 "스" 소리를 냅니다.',
+    examples: [
+      { word: 'sun', pronunciation: '/sʌn/', meaning: '해' },
+      { word: 'sit', pronunciation: '/sɪt/', meaning: '앉다' },
+      { word: 'see', pronunciation: '/siː/', meaning: '보다' },
+      { word: 'star', pronunciation: '/stɑːr/', meaning: '별' },
+    ],
+  },
+  {
+    id: 'consonant-t',
+    pattern: 't',
+    sound: '/t/',
+    koreanSound: '트',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'T는 혀끝을 윗니 뒤에 대고 터뜨리며 "트" 소리를 냅니다.',
+    examples: [
+      { word: 'top', pronunciation: '/tɒp/', meaning: '꼭대기' },
+      { word: 'ten', pronunciation: '/tɛn/', meaning: '열' },
+      { word: 'tree', pronunciation: '/triː/', meaning: '나무' },
+      { word: 'time', pronunciation: '/taɪm/', meaning: '시간' },
+    ],
+  },
+  {
+    id: 'consonant-v',
+    pattern: 'v',
+    sound: '/v/',
+    koreanSound: '브(진동)',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'V는 윗니를 아랫입술에 대고 성대를 울리며 "브" 소리를 냅니다.',
+    examples: [
+      { word: 'van', pronunciation: '/væn/', meaning: '밴' },
+      { word: 'very', pronunciation: '/vɛri/', meaning: '매우' },
+      { word: 'visit', pronunciation: '/vɪzɪt/', meaning: '방문하다' },
+      { word: 'voice', pronunciation: '/vɔɪs/', meaning: '목소리' },
+    ],
+  },
+  {
+    id: 'consonant-w',
+    pattern: 'w',
+    sound: '/w/',
+    koreanSound: '우',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'W는 입술을 둥글게 모아서 "우" 소리를 냅니다.',
+    examples: [
+      { word: 'water', pronunciation: '/wɔːtər/', meaning: '물' },
+      { word: 'win', pronunciation: '/wɪn/', meaning: '이기다' },
+      { word: 'wall', pronunciation: '/wɔːl/', meaning: '벽' },
+      { word: 'walk', pronunciation: '/wɔːk/', meaning: '걷다' },
+    ],
+  },
+  {
+    id: 'consonant-x',
+    pattern: 'x',
+    sound: '/ks/',
+    koreanSound: '크스',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'X는 보통 "크스" 소리를 냅니다.',
+    examples: [
+      { word: 'box', pronunciation: '/bɒks/', meaning: '상자' },
+      { word: 'fox', pronunciation: '/fɒks/', meaning: '여우' },
+      { word: 'six', pronunciation: '/sɪks/', meaning: '여섯' },
+      { word: 'mix', pronunciation: '/mɪks/', meaning: '섞다' },
+    ],
+  },
+  {
+    id: 'consonant-y',
+    pattern: 'y',
+    sound: '/j/',
+    koreanSound: '이',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'Y는 자음으로 쓰일 때 "이" 소리를 냅니다.',
+    examples: [
+      { word: 'yes', pronunciation: '/jɛs/', meaning: '네' },
+      { word: 'you', pronunciation: '/juː/', meaning: '너' },
+      { word: 'yellow', pronunciation: '/jɛloʊ/', meaning: '노란색' },
+      { word: 'year', pronunciation: '/jɪr/', meaning: '년' },
+    ],
+  },
+  {
+    id: 'consonant-z',
+    pattern: 'z',
+    sound: '/z/',
+    koreanSound: '즈',
+    category: 'consonants',
+    difficulty: 'beginner',
+    description: 'Z는 이를 다물고 성대를 울리며 "즈" 소리를 냅니다.',
+    examples: [
+      { word: 'zoo', pronunciation: '/zuː/', meaning: '동물원' },
+      { word: 'zero', pronunciation: '/zɪroʊ/', meaning: '영' },
+      { word: 'zebra', pronunciation: '/ziːbrə/', meaning: '얼룩말' },
+      { word: 'zip', pronunciation: '/zɪp/', meaning: '지퍼' },
     ],
   },
 
-  // 단모음 (Short Vowels)
+  // ========== 단모음 (Short Vowels) - 5개 ==========
   {
     id: 'vowel-short-a',
     pattern: 'a',
@@ -104,6 +422,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'cat', pronunciation: '/kæt/', meaning: '고양이' },
       { word: 'hat', pronunciation: '/hæt/', meaning: '모자' },
       { word: 'map', pronunciation: '/mæp/', meaning: '지도' },
+      { word: 'dad', pronunciation: '/dæd/', meaning: '아빠' },
     ],
   },
   {
@@ -118,6 +437,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'bed', pronunciation: '/bɛd/', meaning: '침대' },
       { word: 'pen', pronunciation: '/pɛn/', meaning: '펜' },
       { word: 'red', pronunciation: '/rɛd/', meaning: '빨간색' },
+      { word: 'egg', pronunciation: '/ɛg/', meaning: '달걀' },
     ],
   },
   {
@@ -132,6 +452,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'pig', pronunciation: '/pɪg/', meaning: '돼지' },
       { word: 'sit', pronunciation: '/sɪt/', meaning: '앉다' },
       { word: 'big', pronunciation: '/bɪg/', meaning: '큰' },
+      { word: 'kid', pronunciation: '/kɪd/', meaning: '아이' },
     ],
   },
   {
@@ -146,6 +467,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'dog', pronunciation: '/dɒg/', meaning: '개' },
       { word: 'hot', pronunciation: '/hɒt/', meaning: '뜨거운' },
       { word: 'box', pronunciation: '/bɒks/', meaning: '상자' },
+      { word: 'mom', pronunciation: '/mɒm/', meaning: '엄마' },
     ],
   },
   {
@@ -160,10 +482,11 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'cup', pronunciation: '/kʌp/', meaning: '컵' },
       { word: 'sun', pronunciation: '/sʌn/', meaning: '해' },
       { word: 'bus', pronunciation: '/bʌs/', meaning: '버스' },
+      { word: 'run', pronunciation: '/rʌn/', meaning: '달리다' },
     ],
   },
 
-  // 장모음 (Long Vowels)
+  // ========== 장모음 (Long Vowels) - 10개 ==========
   {
     id: 'vowel-long-a',
     pattern: 'a_e',
@@ -176,6 +499,67 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'cake', pronunciation: '/keɪk/', meaning: '케이크' },
       { word: 'make', pronunciation: '/meɪk/', meaning: '만들다' },
       { word: 'name', pronunciation: '/neɪm/', meaning: '이름' },
+      { word: 'game', pronunciation: '/geɪm/', meaning: '게임' },
+    ],
+  },
+  {
+    id: 'vowel-long-a-ai',
+    pattern: 'ai',
+    sound: '/eɪ/',
+    koreanSound: '에이',
+    category: 'longVowels',
+    difficulty: 'intermediate',
+    description: 'A와 I가 만나면 "에이" 소리가 나요.',
+    examples: [
+      { word: 'rain', pronunciation: '/reɪn/', meaning: '비' },
+      { word: 'train', pronunciation: '/treɪn/', meaning: '기차' },
+      { word: 'mail', pronunciation: '/meɪl/', meaning: '우편' },
+      { word: 'sail', pronunciation: '/seɪl/', meaning: '항해하다' },
+    ],
+  },
+  {
+    id: 'vowel-long-a-ay',
+    pattern: 'ay',
+    sound: '/eɪ/',
+    koreanSound: '에이',
+    category: 'longVowels',
+    difficulty: 'intermediate',
+    description: 'A와 Y가 만나면 "에이" 소리가 나요.',
+    examples: [
+      { word: 'day', pronunciation: '/deɪ/', meaning: '날' },
+      { word: 'play', pronunciation: '/pleɪ/', meaning: '놀다' },
+      { word: 'say', pronunciation: '/seɪ/', meaning: '말하다' },
+      { word: 'way', pronunciation: '/weɪ/', meaning: '길' },
+    ],
+  },
+  {
+    id: 'vowel-long-e-ee',
+    pattern: 'ee',
+    sound: '/iː/',
+    koreanSound: '이',
+    category: 'longVowels',
+    difficulty: 'intermediate',
+    description: 'E가 두 개 만나면 길게 "이" 소리가 나요.',
+    examples: [
+      { word: 'bee', pronunciation: '/biː/', meaning: '벌' },
+      { word: 'tree', pronunciation: '/triː/', meaning: '나무' },
+      { word: 'see', pronunciation: '/siː/', meaning: '보다' },
+      { word: 'free', pronunciation: '/friː/', meaning: '자유로운' },
+    ],
+  },
+  {
+    id: 'vowel-long-e-ea',
+    pattern: 'ea',
+    sound: '/iː/',
+    koreanSound: '이',
+    category: 'longVowels',
+    difficulty: 'intermediate',
+    description: 'E와 A가 만나면 보통 길게 "이" 소리가 나요.',
+    examples: [
+      { word: 'eat', pronunciation: '/iːt/', meaning: '먹다' },
+      { word: 'sea', pronunciation: '/siː/', meaning: '바다' },
+      { word: 'read', pronunciation: '/riːd/', meaning: '읽다' },
+      { word: 'team', pronunciation: '/tiːm/', meaning: '팀' },
     ],
   },
   {
@@ -190,6 +574,22 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'bike', pronunciation: '/baɪk/', meaning: '자전거' },
       { word: 'kite', pronunciation: '/kaɪt/', meaning: '연' },
       { word: 'time', pronunciation: '/taɪm/', meaning: '시간' },
+      { word: 'five', pronunciation: '/faɪv/', meaning: '다섯' },
+    ],
+  },
+  {
+    id: 'vowel-long-i-igh',
+    pattern: 'igh',
+    sound: '/aɪ/',
+    koreanSound: '아이',
+    category: 'longVowels',
+    difficulty: 'intermediate',
+    description: 'IGH에서 GH는 소리가 없고 I만 "아이"로 소리나요.',
+    examples: [
+      { word: 'high', pronunciation: '/haɪ/', meaning: '높은' },
+      { word: 'night', pronunciation: '/naɪt/', meaning: '밤' },
+      { word: 'light', pronunciation: '/laɪt/', meaning: '빛' },
+      { word: 'right', pronunciation: '/raɪt/', meaning: '오른쪽' },
     ],
   },
   {
@@ -204,6 +604,22 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'home', pronunciation: '/hoʊm/', meaning: '집' },
       { word: 'bone', pronunciation: '/boʊn/', meaning: '뼈' },
       { word: 'nose', pronunciation: '/noʊz/', meaning: '코' },
+      { word: 'hope', pronunciation: '/hoʊp/', meaning: '희망' },
+    ],
+  },
+  {
+    id: 'vowel-long-o-oa',
+    pattern: 'oa',
+    sound: '/oʊ/',
+    koreanSound: '오우',
+    category: 'longVowels',
+    difficulty: 'intermediate',
+    description: 'O와 A가 만나면 "오우" 소리가 나요.',
+    examples: [
+      { word: 'boat', pronunciation: '/boʊt/', meaning: '배' },
+      { word: 'coat', pronunciation: '/koʊt/', meaning: '코트' },
+      { word: 'road', pronunciation: '/roʊd/', meaning: '길' },
+      { word: 'goat', pronunciation: '/goʊt/', meaning: '염소' },
     ],
   },
   {
@@ -218,10 +634,26 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'cube', pronunciation: '/kjuːb/', meaning: '정육면체' },
       { word: 'cute', pronunciation: '/kjuːt/', meaning: '귀여운' },
       { word: 'tube', pronunciation: '/tjuːb/', meaning: '튜브' },
+      { word: 'huge', pronunciation: '/hjuːdʒ/', meaning: '거대한' },
+    ],
+  },
+  {
+    id: 'vowel-long-oo',
+    pattern: 'oo',
+    sound: '/uː/',
+    koreanSound: '우',
+    category: 'longVowels',
+    difficulty: 'intermediate',
+    description: 'O가 두 개 만나면 "우" 소리가 나요.',
+    examples: [
+      { word: 'moon', pronunciation: '/muːn/', meaning: '달' },
+      { word: 'food', pronunciation: '/fuːd/', meaning: '음식' },
+      { word: 'zoo', pronunciation: '/zuː/', meaning: '동물원' },
+      { word: 'cool', pronunciation: '/kuːl/', meaning: '시원한' },
     ],
   },
 
-  // 자음군 (Blends)
+  // ========== 자음군 (Blends) - 20개 ==========
   {
     id: 'blend-bl',
     pattern: 'bl',
@@ -234,6 +666,37 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'blue', pronunciation: '/bluː/', meaning: '파란색' },
       { word: 'black', pronunciation: '/blæk/', meaning: '검은색' },
       { word: 'block', pronunciation: '/blɒk/', meaning: '블록' },
+      { word: 'blow', pronunciation: '/bloʊ/', meaning: '불다' },
+    ],
+  },
+  {
+    id: 'blend-br',
+    pattern: 'br',
+    sound: '/br/',
+    koreanSound: '브르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'B와 R 소리가 합쳐져서 "브르" 소리가 나요.',
+    examples: [
+      { word: 'brown', pronunciation: '/braʊn/', meaning: '갈색' },
+      { word: 'bread', pronunciation: '/brɛd/', meaning: '빵' },
+      { word: 'bring', pronunciation: '/brɪŋ/', meaning: '가져오다' },
+      { word: 'brave', pronunciation: '/breɪv/', meaning: '용감한' },
+    ],
+  },
+  {
+    id: 'blend-cl',
+    pattern: 'cl',
+    sound: '/kl/',
+    koreanSound: '클',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'C와 L 소리가 합쳐져서 "클" 소리가 나요.',
+    examples: [
+      { word: 'clock', pronunciation: '/klɒk/', meaning: '시계' },
+      { word: 'clean', pronunciation: '/kliːn/', meaning: '깨끗한' },
+      { word: 'climb', pronunciation: '/klaɪm/', meaning: '오르다' },
+      { word: 'close', pronunciation: '/kloʊz/', meaning: '닫다' },
     ],
   },
   {
@@ -248,6 +711,187 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'crab', pronunciation: '/kræb/', meaning: '게' },
       { word: 'cry', pronunciation: '/kraɪ/', meaning: '울다' },
       { word: 'crown', pronunciation: '/kraʊn/', meaning: '왕관' },
+      { word: 'cream', pronunciation: '/kriːm/', meaning: '크림' },
+    ],
+  },
+  {
+    id: 'blend-dr',
+    pattern: 'dr',
+    sound: '/dr/',
+    koreanSound: '드르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'D와 R 소리가 합쳐져서 "드르" 소리가 나요.',
+    examples: [
+      { word: 'dream', pronunciation: '/driːm/', meaning: '꿈' },
+      { word: 'drink', pronunciation: '/drɪŋk/', meaning: '마시다' },
+      { word: 'dress', pronunciation: '/drɛs/', meaning: '드레스' },
+      { word: 'drive', pronunciation: '/draɪv/', meaning: '운전하다' },
+    ],
+  },
+  {
+    id: 'blend-fl',
+    pattern: 'fl',
+    sound: '/fl/',
+    koreanSound: '플',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'F와 L 소리가 합쳐져서 "플" 소리가 나요.',
+    examples: [
+      { word: 'fly', pronunciation: '/flaɪ/', meaning: '날다' },
+      { word: 'flag', pronunciation: '/flæg/', meaning: '깃발' },
+      { word: 'flower', pronunciation: '/flaʊər/', meaning: '꽃' },
+      { word: 'floor', pronunciation: '/flɔːr/', meaning: '바닥' },
+    ],
+  },
+  {
+    id: 'blend-fr',
+    pattern: 'fr',
+    sound: '/fr/',
+    koreanSound: '프르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'F와 R 소리가 합쳐져서 "프르" 소리가 나요.',
+    examples: [
+      { word: 'frog', pronunciation: '/frɒg/', meaning: '개구리' },
+      { word: 'free', pronunciation: '/friː/', meaning: '자유로운' },
+      { word: 'friend', pronunciation: '/frɛnd/', meaning: '친구' },
+      { word: 'from', pronunciation: '/frɒm/', meaning: '~로부터' },
+    ],
+  },
+  {
+    id: 'blend-gl',
+    pattern: 'gl',
+    sound: '/gl/',
+    koreanSound: '글',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'G와 L 소리가 합쳐져서 "글" 소리가 나요.',
+    examples: [
+      { word: 'glass', pronunciation: '/glɑːs/', meaning: '유리' },
+      { word: 'glad', pronunciation: '/glæd/', meaning: '기쁜' },
+      { word: 'glow', pronunciation: '/gloʊ/', meaning: '빛나다' },
+      { word: 'globe', pronunciation: '/gloʊb/', meaning: '지구본' },
+    ],
+  },
+  {
+    id: 'blend-gr',
+    pattern: 'gr',
+    sound: '/gr/',
+    koreanSound: '그르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'G와 R 소리가 합쳐져서 "그르" 소리가 나요.',
+    examples: [
+      { word: 'green', pronunciation: '/griːn/', meaning: '초록색' },
+      { word: 'grass', pronunciation: '/grɑːs/', meaning: '풀' },
+      { word: 'great', pronunciation: '/greɪt/', meaning: '훌륭한' },
+      { word: 'grow', pronunciation: '/groʊ/', meaning: '자라다' },
+    ],
+  },
+  {
+    id: 'blend-pl',
+    pattern: 'pl',
+    sound: '/pl/',
+    koreanSound: '플',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'P와 L 소리가 합쳐져서 "플" 소리가 나요.',
+    examples: [
+      { word: 'play', pronunciation: '/pleɪ/', meaning: '놀다' },
+      { word: 'plant', pronunciation: '/plænt/', meaning: '식물' },
+      { word: 'plane', pronunciation: '/pleɪn/', meaning: '비행기' },
+      { word: 'please', pronunciation: '/pliːz/', meaning: '제발' },
+    ],
+  },
+  {
+    id: 'blend-pr',
+    pattern: 'pr',
+    sound: '/pr/',
+    koreanSound: '프르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'P와 R 소리가 합쳐져서 "프르" 소리가 나요.',
+    examples: [
+      { word: 'print', pronunciation: '/prɪnt/', meaning: '인쇄하다' },
+      { word: 'pretty', pronunciation: '/prɪti/', meaning: '예쁜' },
+      { word: 'prince', pronunciation: '/prɪns/', meaning: '왕자' },
+      { word: 'prize', pronunciation: '/praɪz/', meaning: '상' },
+    ],
+  },
+  {
+    id: 'blend-sk',
+    pattern: 'sk',
+    sound: '/sk/',
+    koreanSound: '스크',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S와 K 소리가 합쳐져서 "스크" 소리가 나요.',
+    examples: [
+      { word: 'sky', pronunciation: '/skaɪ/', meaning: '하늘' },
+      { word: 'skip', pronunciation: '/skɪp/', meaning: '건너뛰다' },
+      { word: 'skin', pronunciation: '/skɪn/', meaning: '피부' },
+      { word: 'skate', pronunciation: '/skeɪt/', meaning: '스케이트' },
+    ],
+  },
+  {
+    id: 'blend-sl',
+    pattern: 'sl',
+    sound: '/sl/',
+    koreanSound: '슬',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S와 L 소리가 합쳐져서 "슬" 소리가 나요.',
+    examples: [
+      { word: 'sleep', pronunciation: '/sliːp/', meaning: '자다' },
+      { word: 'slide', pronunciation: '/slaɪd/', meaning: '미끄러지다' },
+      { word: 'slow', pronunciation: '/sloʊ/', meaning: '느린' },
+      { word: 'slim', pronunciation: '/slɪm/', meaning: '날씬한' },
+    ],
+  },
+  {
+    id: 'blend-sm',
+    pattern: 'sm',
+    sound: '/sm/',
+    koreanSound: '스므',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S와 M 소리가 합쳐져서 "스므" 소리가 나요.',
+    examples: [
+      { word: 'small', pronunciation: '/smɔːl/', meaning: '작은' },
+      { word: 'smile', pronunciation: '/smaɪl/', meaning: '웃다' },
+      { word: 'smell', pronunciation: '/smɛl/', meaning: '냄새' },
+      { word: 'smart', pronunciation: '/smɑːrt/', meaning: '똑똑한' },
+    ],
+  },
+  {
+    id: 'blend-sn',
+    pattern: 'sn',
+    sound: '/sn/',
+    koreanSound: '스느',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S와 N 소리가 합쳐져서 "스느" 소리가 나요.',
+    examples: [
+      { word: 'snow', pronunciation: '/snoʊ/', meaning: '눈' },
+      { word: 'snake', pronunciation: '/sneɪk/', meaning: '뱀' },
+      { word: 'snack', pronunciation: '/snæk/', meaning: '간식' },
+      { word: 'snap', pronunciation: '/snæp/', meaning: '찰칵' },
+    ],
+  },
+  {
+    id: 'blend-sp',
+    pattern: 'sp',
+    sound: '/sp/',
+    koreanSound: '스프',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S와 P 소리가 합쳐져서 "스프" 소리가 나요.',
+    examples: [
+      { word: 'spoon', pronunciation: '/spuːn/', meaning: '숟가락' },
+      { word: 'spin', pronunciation: '/spɪn/', meaning: '돌다' },
+      { word: 'spot', pronunciation: '/spɒt/', meaning: '점' },
+      { word: 'speak', pronunciation: '/spiːk/', meaning: '말하다' },
     ],
   },
   {
@@ -262,10 +906,86 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'star', pronunciation: '/stɑːr/', meaning: '별' },
       { word: 'stop', pronunciation: '/stɒp/', meaning: '멈추다' },
       { word: 'stone', pronunciation: '/stoʊn/', meaning: '돌' },
+      { word: 'stand', pronunciation: '/stænd/', meaning: '서다' },
+    ],
+  },
+  {
+    id: 'blend-sw',
+    pattern: 'sw',
+    sound: '/sw/',
+    koreanSound: '스우',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S와 W 소리가 합쳐져서 "스우" 소리가 나요.',
+    examples: [
+      { word: 'swim', pronunciation: '/swɪm/', meaning: '수영하다' },
+      { word: 'sweet', pronunciation: '/swiːt/', meaning: '달콤한' },
+      { word: 'swing', pronunciation: '/swɪŋ/', meaning: '그네' },
+      { word: 'swan', pronunciation: '/swɒn/', meaning: '백조' },
+    ],
+  },
+  {
+    id: 'blend-tr',
+    pattern: 'tr',
+    sound: '/tr/',
+    koreanSound: '트르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'T와 R 소리가 합쳐져서 "트르" 소리가 나요.',
+    examples: [
+      { word: 'tree', pronunciation: '/triː/', meaning: '나무' },
+      { word: 'train', pronunciation: '/treɪn/', meaning: '기차' },
+      { word: 'truck', pronunciation: '/trʌk/', meaning: '트럭' },
+      { word: 'try', pronunciation: '/traɪ/', meaning: '시도하다' },
+    ],
+  },
+  {
+    id: 'blend-scr',
+    pattern: 'scr',
+    sound: '/skr/',
+    koreanSound: '스크르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S, C, R 소리가 합쳐져서 "스크르" 소리가 나요.',
+    examples: [
+      { word: 'scream', pronunciation: '/skriːm/', meaning: '비명' },
+      { word: 'screen', pronunciation: '/skriːn/', meaning: '화면' },
+      { word: 'scratch', pronunciation: '/skrætʃ/', meaning: '긁다' },
+      { word: 'script', pronunciation: '/skrɪpt/', meaning: '대본' },
+    ],
+  },
+  {
+    id: 'blend-spr',
+    pattern: 'spr',
+    sound: '/spr/',
+    koreanSound: '스프르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S, P, R 소리가 합쳐져서 "스프르" 소리가 나요.',
+    examples: [
+      { word: 'spring', pronunciation: '/sprɪŋ/', meaning: '봄' },
+      { word: 'spray', pronunciation: '/spreɪ/', meaning: '뿌리다' },
+      { word: 'spread', pronunciation: '/sprɛd/', meaning: '펼치다' },
+      { word: 'sprint', pronunciation: '/sprɪnt/', meaning: '전력질주' },
+    ],
+  },
+  {
+    id: 'blend-str',
+    pattern: 'str',
+    sound: '/str/',
+    koreanSound: '스트르',
+    category: 'blends',
+    difficulty: 'intermediate',
+    description: 'S, T, R 소리가 합쳐져서 "스트르" 소리가 나요.',
+    examples: [
+      { word: 'street', pronunciation: '/striːt/', meaning: '거리' },
+      { word: 'strong', pronunciation: '/strɒŋ/', meaning: '강한' },
+      { word: 'string', pronunciation: '/strɪŋ/', meaning: '줄' },
+      { word: 'stream', pronunciation: '/striːm/', meaning: '시냇물' },
     ],
   },
 
-  // 이중자 (Digraphs)
+  // ========== 이중자 (Digraphs) - 10개 ==========
   {
     id: 'digraph-ch',
     pattern: 'ch',
@@ -278,6 +998,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'chair', pronunciation: '/tʃeər/', meaning: '의자' },
       { word: 'cheese', pronunciation: '/tʃiːz/', meaning: '치즈' },
       { word: 'child', pronunciation: '/tʃaɪld/', meaning: '아이' },
+      { word: 'chat', pronunciation: '/tʃæt/', meaning: '채팅' },
     ],
   },
   {
@@ -292,11 +1013,12 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'ship', pronunciation: '/ʃɪp/', meaning: '배' },
       { word: 'shop', pronunciation: '/ʃɒp/', meaning: '가게' },
       { word: 'fish', pronunciation: '/fɪʃ/', meaning: '물고기' },
+      { word: 'shell', pronunciation: '/ʃɛl/', meaning: '조개껍데기' },
     ],
   },
   {
     id: 'digraph-th-voiced',
-    pattern: 'th',
+    pattern: 'th (voiced)',
     sound: '/ð/',
     koreanSound: '드',
     category: 'digraphs',
@@ -306,11 +1028,12 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'this', pronunciation: '/ðɪs/', meaning: '이것' },
       { word: 'that', pronunciation: '/ðæt/', meaning: '저것' },
       { word: 'mother', pronunciation: '/mʌðər/', meaning: '엄마' },
+      { word: 'brother', pronunciation: '/brʌðər/', meaning: '형제' },
     ],
   },
   {
     id: 'digraph-th-voiceless',
-    pattern: 'th',
+    pattern: 'th (voiceless)',
     sound: '/θ/',
     koreanSound: '쓰',
     category: 'digraphs',
@@ -320,6 +1043,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'think', pronunciation: '/θɪŋk/', meaning: '생각하다' },
       { word: 'three', pronunciation: '/θriː/', meaning: '셋' },
       { word: 'bath', pronunciation: '/bæθ/', meaning: '목욕' },
+      { word: 'thank', pronunciation: '/θæŋk/', meaning: '감사하다' },
     ],
   },
   {
@@ -334,6 +1058,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'what', pronunciation: '/wɒt/', meaning: '무엇' },
       { word: 'when', pronunciation: '/wɛn/', meaning: '언제' },
       { word: 'white', pronunciation: '/waɪt/', meaning: '흰색' },
+      { word: 'whale', pronunciation: '/weɪl/', meaning: '고래' },
     ],
   },
   {
@@ -348,10 +1073,71 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'duck', pronunciation: '/dʌk/', meaning: '오리' },
       { word: 'back', pronunciation: '/bæk/', meaning: '뒤' },
       { word: 'clock', pronunciation: '/klɒk/', meaning: '시계' },
+      { word: 'kick', pronunciation: '/kɪk/', meaning: '차다' },
+    ],
+  },
+  {
+    id: 'digraph-ng',
+    pattern: 'ng',
+    sound: '/ŋ/',
+    koreanSound: '응',
+    category: 'digraphs',
+    difficulty: 'intermediate',
+    description: 'N과 G가 만나면 코로 "응" 소리가 나요.',
+    examples: [
+      { word: 'sing', pronunciation: '/sɪŋ/', meaning: '노래하다' },
+      { word: 'king', pronunciation: '/kɪŋ/', meaning: '왕' },
+      { word: 'ring', pronunciation: '/rɪŋ/', meaning: '반지' },
+      { word: 'long', pronunciation: '/lɒŋ/', meaning: '긴' },
+    ],
+  },
+  {
+    id: 'digraph-ph',
+    pattern: 'ph',
+    sound: '/f/',
+    koreanSound: '프',
+    category: 'digraphs',
+    difficulty: 'intermediate',
+    description: 'P와 H가 만나면 "프" 소리가 나요.',
+    examples: [
+      { word: 'phone', pronunciation: '/foʊn/', meaning: '전화' },
+      { word: 'photo', pronunciation: '/foʊtoʊ/', meaning: '사진' },
+      { word: 'elephant', pronunciation: '/ɛlɪfənt/', meaning: '코끼리' },
+      { word: 'dolphin', pronunciation: '/dɒlfɪn/', meaning: '돌고래' },
+    ],
+  },
+  {
+    id: 'digraph-kn',
+    pattern: 'kn',
+    sound: '/n/',
+    koreanSound: '느',
+    category: 'digraphs',
+    difficulty: 'intermediate',
+    description: 'K와 N이 만나면 K는 소리가 없고 "느" 소리만 나요.',
+    examples: [
+      { word: 'know', pronunciation: '/noʊ/', meaning: '알다' },
+      { word: 'knee', pronunciation: '/niː/', meaning: '무릎' },
+      { word: 'knife', pronunciation: '/naɪf/', meaning: '칼' },
+      { word: 'knock', pronunciation: '/nɒk/', meaning: '두드리다' },
+    ],
+  },
+  {
+    id: 'digraph-wr',
+    pattern: 'wr',
+    sound: '/r/',
+    koreanSound: '르',
+    category: 'digraphs',
+    difficulty: 'intermediate',
+    description: 'W와 R이 만나면 W는 소리가 없고 "르" 소리만 나요.',
+    examples: [
+      { word: 'write', pronunciation: '/raɪt/', meaning: '쓰다' },
+      { word: 'wrong', pronunciation: '/rɒŋ/', meaning: '잘못된' },
+      { word: 'wrap', pronunciation: '/ræp/', meaning: '싸다' },
+      { word: 'wrist', pronunciation: '/rɪst/', meaning: '손목' },
     ],
   },
 
-  // R 통제 모음 (R-Controlled Vowels)
+  // ========== R 통제 모음 (R-Controlled Vowels) - 5개 ==========
   {
     id: 'r-controlled-ar',
     pattern: 'ar',
@@ -364,6 +1150,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'car', pronunciation: '/kɑːr/', meaning: '자동차' },
       { word: 'star', pronunciation: '/stɑːr/', meaning: '별' },
       { word: 'park', pronunciation: '/pɑːrk/', meaning: '공원' },
+      { word: 'farm', pronunciation: '/fɑːrm/', meaning: '농장' },
     ],
   },
   {
@@ -378,6 +1165,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'her', pronunciation: '/hɜːr/', meaning: '그녀의' },
       { word: 'water', pronunciation: '/wɔːtər/', meaning: '물' },
       { word: 'sister', pronunciation: '/sɪstər/', meaning: '언니/누나' },
+      { word: 'never', pronunciation: '/nɛvər/', meaning: '절대' },
     ],
   },
   {
@@ -392,6 +1180,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'bird', pronunciation: '/bɜːrd/', meaning: '새' },
       { word: 'girl', pronunciation: '/gɜːrl/', meaning: '소녀' },
       { word: 'first', pronunciation: '/fɜːrst/', meaning: '첫 번째' },
+      { word: 'third', pronunciation: '/θɜːrd/', meaning: '세 번째' },
     ],
   },
   {
@@ -406,6 +1195,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'for', pronunciation: '/fɔːr/', meaning: '~을 위해' },
       { word: 'born', pronunciation: '/bɔːrn/', meaning: '태어난' },
       { word: 'horse', pronunciation: '/hɔːrs/', meaning: '말' },
+      { word: 'corn', pronunciation: '/kɔːrn/', meaning: '옥수수' },
     ],
   },
   {
@@ -420,10 +1210,11 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'burn', pronunciation: '/bɜːrn/', meaning: '불타다' },
       { word: 'turn', pronunciation: '/tɜːrn/', meaning: '돌다' },
       { word: 'purple', pronunciation: '/pɜːrpl/', meaning: '보라색' },
+      { word: 'nurse', pronunciation: '/nɜːrs/', meaning: '간호사' },
     ],
   },
 
-  // 이중모음 (Diphthongs)
+  // ========== 이중모음 (Diphthongs) - 6개 ==========
   {
     id: 'diphthong-oi',
     pattern: 'oi',
@@ -436,6 +1227,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'coin', pronunciation: '/kɔɪn/', meaning: '동전' },
       { word: 'oil', pronunciation: '/ɔɪl/', meaning: '기름' },
       { word: 'boil', pronunciation: '/bɔɪl/', meaning: '끓이다' },
+      { word: 'point', pronunciation: '/pɔɪnt/', meaning: '점' },
     ],
   },
   {
@@ -450,6 +1242,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'boy', pronunciation: '/bɔɪ/', meaning: '소년' },
       { word: 'toy', pronunciation: '/tɔɪ/', meaning: '장난감' },
       { word: 'joy', pronunciation: '/dʒɔɪ/', meaning: '기쁨' },
+      { word: 'enjoy', pronunciation: '/ɪndʒɔɪ/', meaning: '즐기다' },
     ],
   },
   {
@@ -464,6 +1257,7 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'house', pronunciation: '/haʊs/', meaning: '집' },
       { word: 'mouse', pronunciation: '/maʊs/', meaning: '쥐' },
       { word: 'cloud', pronunciation: '/klaʊd/', meaning: '구름' },
+      { word: 'loud', pronunciation: '/laʊd/', meaning: '시끄러운' },
     ],
   },
   {
@@ -478,6 +1272,54 @@ export const PHONICS_RULES: PhonicsRule[] = [
       { word: 'cow', pronunciation: '/kaʊ/', meaning: '소' },
       { word: 'now', pronunciation: '/naʊ/', meaning: '지금' },
       { word: 'how', pronunciation: '/haʊ/', meaning: '어떻게' },
+      { word: 'town', pronunciation: '/taʊn/', meaning: '마을' },
+    ],
+  },
+  {
+    id: 'diphthong-aw',
+    pattern: 'aw',
+    sound: '/ɔː/',
+    koreanSound: '오',
+    category: 'diphthongs',
+    difficulty: 'advanced',
+    description: 'A와 W가 만나면 "오" 소리가 나요.',
+    examples: [
+      { word: 'saw', pronunciation: '/sɔː/', meaning: '보았다' },
+      { word: 'paw', pronunciation: '/pɔː/', meaning: '발' },
+      { word: 'draw', pronunciation: '/drɔː/', meaning: '그리다' },
+      { word: 'law', pronunciation: '/lɔː/', meaning: '법' },
+    ],
+  },
+  {
+    id: 'diphthong-ew',
+    pattern: 'ew',
+    sound: '/juː/',
+    koreanSound: '유',
+    category: 'diphthongs',
+    difficulty: 'advanced',
+    description: 'E와 W가 만나면 "유" 소리가 나요.',
+    examples: [
+      { word: 'new', pronunciation: '/njuː/', meaning: '새로운' },
+      { word: 'few', pronunciation: '/fjuː/', meaning: '적은' },
+      { word: 'flew', pronunciation: '/fluː/', meaning: '날았다' },
+      { word: 'grew', pronunciation: '/gruː/', meaning: '자랐다' },
+    ],
+  },
+
+  // ========== 무음 E (Silent E) ==========
+  {
+    id: 'silent-e',
+    pattern: 'silent e',
+    sound: '-',
+    koreanSound: '(무음)',
+    category: 'silentE',
+    difficulty: 'intermediate',
+    description: '단어 끝의 E는 소리가 없지만, 앞의 모음을 장모음으로 바꿔요.',
+    examples: [
+      { word: 'cake/cak', pronunciation: '/keɪk/', meaning: 'a → 에이' },
+      { word: 'bike/bik', pronunciation: '/baɪk/', meaning: 'i → 아이' },
+      { word: 'home/hom', pronunciation: '/hoʊm/', meaning: 'o → 오우' },
+      { word: 'cute/cut', pronunciation: '/kjuːt/', meaning: 'u → 유' },
     ],
   },
 ];
@@ -522,3 +1364,34 @@ export const DIFFICULTY_DESCRIPTIONS: Record<DifficultyLevel, string> = {
   intermediate: '장모음, 자음군, 이중자를 배워요',
   advanced: '이중모음과 R 통제 모음을 배워요',
 };
+
+/**
+ * 난이도별 파닉스 규칙 가져오기
+ */
+export function getPhonicsRulesByDifficulty(difficulty: DifficultyLevel): PhonicsRule[] {
+  return PHONICS_RULES.filter(rule => rule.difficulty === difficulty);
+}
+
+/**
+ * 카테고리별 파닉스 규칙 가져오기
+ */
+export function getPhonicsRulesByCategory(category: PhonicsCategory): PhonicsRule[] {
+  return PHONICS_RULES.filter(rule => rule.category === category);
+}
+
+/**
+ * 파닉스 규칙 통계
+ */
+export function getPhonicsStats() {
+  const total = PHONICS_RULES.length;
+  const byDifficulty = {
+    beginner: PHONICS_RULES.filter(r => r.difficulty === 'beginner').length,
+    intermediate: PHONICS_RULES.filter(r => r.difficulty === 'intermediate').length,
+    advanced: PHONICS_RULES.filter(r => r.difficulty === 'advanced').length,
+  };
+  const byCategory: Record<string, number> = {};
+  Object.keys(CATEGORY_NAMES).forEach(cat => {
+    byCategory[cat] = PHONICS_RULES.filter(r => r.category === cat).length;
+  });
+  return { total, byDifficulty, byCategory };
+}
