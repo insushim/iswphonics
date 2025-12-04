@@ -32,7 +32,7 @@ let storage: FirebaseStorage;
 export const googleProvider = new GoogleAuthProvider();
 
 // 슈퍼관리자 이메일 (환경변수에서 로드)
-export const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || 'admin@iswphonics.com';
+export const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || 'simssijjang@naver.com';
 
 /**
  * Firebase 초기화
