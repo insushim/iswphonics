@@ -2,57 +2,57 @@
   "name": "PhonicsQuest - 재미있는 파닉스 학습",
   "short_name": "PhonicsQuest",
   "description": "어린이를 위한 인터랙티브 파닉스 학습 앱",
-  "start_url": "/",
+  "start_url": "/iswphonics/",
   "display": "standalone",
   "background_color": "#fffbeb",
   "theme_color": "#fbbf24",
   "orientation": "portrait",
-  "scope": "/",
+  "scope": "/iswphonics/",
   "icons": [
     {
-      "src": "/icons/icon-72x72.png",
+      "src": "/iswphonics/icons/icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-96x96.png",
+      "src": "/iswphonics/icons/icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-128x128.png",
+      "src": "/iswphonics/icons/icon-128x128.png",
       "sizes": "128x128",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-144x144.png",
+      "src": "/iswphonics/icons/icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-152x152.png",
+      "src": "/iswphonics/icons/icon-152x152.png",
       "sizes": "152x152",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-192x192.png",
+      "src": "/iswphonics/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-384x384.png",
+      "src": "/iswphonics/icons/icon-384x384.png",
       "sizes": "384x384",
       "type": "image/png",
       "purpose": "maskable any"
     },
     {
-      "src": "/icons/icon-512x512.png",
+      "src": "/iswphonics/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable any"
@@ -63,7 +63,7 @@
   "dir": "ltr",
   "screenshots": [
     {
-      "src": "/screenshots/home.png",
+      "src": "/iswphonics/screenshots/home.png",
       "sizes": "390x844",
       "type": "image/png",
       "label": "홈 화면"
@@ -74,22 +74,22 @@
       "name": "알파벳 학습",
       "short_name": "알파벳",
       "description": "A부터 Z까지 배워요",
-      "url": "/learn/alphabet",
-      "icons": [{ "src": "/icons/alphabet.png", "sizes": "96x96" }]
+      "url": "/iswphonics/learn/alphabet",
+      "icons": [{ "src": "/iswphonics/icons/alphabet.png", "sizes": "96x96" }]
     },
     {
       "name": "단어 학습",
       "short_name": "단어",
       "description": "재미있는 단어 학습",
-      "url": "/learn/words",
-      "icons": [{ "src": "/icons/words.png", "sizes": "96x96" }]
+      "url": "/iswphonics/learn/words",
+      "icons": [{ "src": "/iswphonics/icons/words.png", "sizes": "96x96" }]
     },
     {
       "name": "게임",
       "short_name": "게임",
       "description": "재미있게 복습해요",
-      "url": "/games",
-      "icons": [{ "src": "/icons/games.png", "sizes": "96x96" }]
+      "url": "/iswphonics/games",
+      "icons": [{ "src": "/iswphonics/icons/games.png", "sizes": "96x96" }]
     }
   ]
 }
