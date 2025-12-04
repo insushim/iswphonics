@@ -8,7 +8,7 @@ import { SUPER_ADMIN_EMAIL } from '@/lib/firebase';
 
 export default function AdminRegisterPage() {
   const router = useRouter();
-  const { signUp, isLoading, error } = useAuthStore();
+  const { signUp, error } = useAuthStore();
 
   const [formData, setFormData] = useState({
     email: '',
@@ -19,6 +19,7 @@ export default function AdminRegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [validationError, setValidationError] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -51,6 +52,7 @@ export default function AdminRegisterPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await signUp(formData.email, formData.password, formData.displayName, 'superAdmin');
       setSuccess(true);
@@ -59,6 +61,8 @@ export default function AdminRegisterPage() {
       }, 2000);
     } catch (err) {
       console.error('Registration failed:', err);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -189,10 +193,10 @@ export default function AdminRegisterPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <>
                 <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 등록 중...
