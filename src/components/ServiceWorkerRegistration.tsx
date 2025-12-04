@@ -30,8 +30,9 @@ export function ServiceWorkerRegistration() {
  */
 async function registerServiceWorker() {
   try {
-    const registration = await navigator.serviceWorker.register('/sw.js', {
-      scope: '/',
+    const basePath = process.env.NODE_ENV === 'production' ? '/iswphonics' : '';
+    const registration = await navigator.serviceWorker.register(`${basePath}/sw.js`, {
+      scope: `${basePath}/`,
     });
 
     console.log('[App] Service Worker 등록 성공:', registration.scope);
