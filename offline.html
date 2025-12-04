@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>오프라인 - PhonicsQuest</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #fffbeb 0%, #fed7aa 100%);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .emoji {
+      font-size: 80px;
+      margin-bottom: 24px;
+      animation: bounce 2s infinite ease-in-out;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    h1 {
+      font-size: 24px;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+
+    p {
+      font-size: 16px;
+      color: #6b7280;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .tips {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+    }
+
+    .tips h2 {
+      font-size: 16px;
+      color: #f59e0b;
+      margin-bottom: 12px;
+    }
+
+    .tips ul {
+      list-style: none;
+      text-align: left;
+    }
+
+    .tips li {
+      padding: 8px 0;
+      color: #4b5563;
+      font-size: 14px;
+    }
+
+    .tips li::before {
+      content: "💡 ";
+    }
+
+    button {
+      background: linear-gradient(135deg, #fbbf24 0%, #f97316 100%);
+      color: white;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 16px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: scale(1.02);
+      box-shadow: 0 4px 20px rgba(251, 191, 36, 0.4);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="emoji">📡</div>
+    <h1>인터넷 연결이 필요해요</h1>
+    <p>
+      오프라인 상태에서는 일부 기능을<br>
+      사용할 수 없어요.
+    </p>
+
+    <div class="tips">
+      <h2>오프라인 학습 팁</h2>
+      <ul>
+        <li>Wi-Fi나 모바일 데이터를 확인해주세요</li>
+        <li>이전에 학습한 내용은 저장되어 있어요</li>
+        <li>연결되면 자동으로 동기화돼요</li>
+      </ul>
+    </div>
+
+    <button onclick="location.reload()">
+      다시 시도하기
+    </button>
+  </div>
+</body>
+</html>
