@@ -4,13 +4,14 @@
 // ============================================
 
 import { WordItem } from '@/types';
+import { EXTENDED_WORD_DATA } from './extendedWordData';
 
 /**
- * 학습 단어 목록
+ * 기본 학습 단어 목록
  * 카테고리: 동물, 음식, 색깔, 숫자, 가족, 신체, 자연, 사물, 동작, 감정
  * 각 카테고리별 약 50개씩
  */
-export const WORD_DATA: WordItem[] = [
+const BASE_WORD_DATA: WordItem[] = [
   // ========== 동물 (Animals) - 50개 ==========
   // 초급 (20개)
   { id: 'w-cat', word: 'cat', pronunciation: '/kæt/', meaning: '고양이', phonicsPatterns: ['c', 'a', 't'], difficulty: 'beginner', category: '동물' },
@@ -495,6 +496,11 @@ export const WORD_DATA: WordItem[] = [
 /**
  * 카테고리 목록
  */
+/**
+ * 전체 단어 목록 (기본 + 확장)
+ */
+export const WORD_DATA: WordItem[] = [...BASE_WORD_DATA, ...EXTENDED_WORD_DATA];
+
 export const WORD_CATEGORIES = [
   '동물',
   '음식',
@@ -506,6 +512,8 @@ export const WORD_CATEGORIES = [
   '사물',
   '동작',
   '감정',
+  '장소',
+  '시간',
 ] as const;
 
 export type WordCategory = typeof WORD_CATEGORIES[number];

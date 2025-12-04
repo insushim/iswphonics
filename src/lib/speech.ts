@@ -146,6 +146,14 @@ export function isSpeaking(): boolean {
   return window.speechSynthesis.speaking;
 }
 
+/**
+ * 간단한 텍스트 음성 재생 (게임용)
+ * speak 함수의 간단한 래퍼
+ */
+export function speakText(text: string, rate: number = 0.9): void {
+  speak(text, { rate }).catch(console.error);
+}
+
 // ============================================
 // 마이크 녹음 관련
 // ============================================

@@ -40,7 +40,7 @@ const GAMES = [
     emoji: '✏️',
     gradient: 'from-green-400 to-emerald-400',
     icon: Gamepad2,
-    comingSoon: true,
+    comingSoon: false,
   },
   {
     id: 'sound-quiz',
@@ -49,7 +49,7 @@ const GAMES = [
     emoji: '🎵',
     gradient: 'from-amber-400 to-orange-400',
     icon: Mic,
-    comingSoon: true,
+    comingSoon: false,
   },
 ];
 

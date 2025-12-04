@@ -313,3 +313,208 @@ export interface CharacterState {
   message: string;
   isAnimating: boolean;
 }
+
+// ============================================
+// 일일 미션 시스템 타입
+// ============================================
+
+/**
+ * 미션 타입
+ */
+export type MissionType =
+  | 'alphabet'      // 알파벳 학습
+  | 'phonics'       // 파닉스 학습
+  | 'words'         // 단어 학습
+  | 'speaking'      // 말하기 연습
+  | 'wordMatch'     // 단어 매칭 게임
+  | 'memory'        // 메모리 게임
+  | 'spelling'      // 철자 맞추기 게임
+  | 'soundQuiz';    // 소리 퀴즈 게임
+
+/**
+ * 일일 미션 아이템
+ */
+export interface DailyMission {
+  id: string;
+  type: MissionType;
+  title: string;
+  description: string;
+  emoji: string;
+  targetCount: number;        // 목표 수 (단어 개수, 게임 점수 등)
+  currentCount: number;       // 현재 진행 수
+  xpReward: number;           // 보상 XP
+  isCompleted: boolean;
+  order: number;              // 순서
+}
+
+/**
+ * 일일 미션 상태
+ */
+export interface DailyMissionState {
+  date: string;               // YYYY-MM-DD 형식
+  missions: DailyMission[];
+  totalMissions: number;
+  completedMissions: number;
+  bonusXpClaimed: boolean;    // 일일 보너스 XP 수령 여부
+}
+
+// ============================================
+// 일일 학습 목표 시스템 타입
+// ============================================
+
+/**
+ * 일일 학습 목표 아이템
+ */
+export interface DailyGoalItem {
+  id: string;
+  category: 'alphabet' | 'phonics' | 'words' | 'speaking' | 'games';
+  title: string;
+  description: string;
+  emoji: string;
+  targetCount: number;        // 목표 수
+  currentCount: number;       // 현재 진행 수
+  unit: string;               // 단위 (개, 분, 회 등)
+  link: string;               // 이동 링크
+  estimatedMinutes: number;   // 예상 소요 시간 (분)
+}
+
+/**
+ * 난이도별 일일 학습 목표
+ */
+export interface DailyGoalsByDifficulty {
+  beginner: DailyGoalItem[];
+  intermediate: DailyGoalItem[];
+  advanced: DailyGoalItem[];
+}
+
+/**
+ * 오늘의 학습 진행 상태
+ */
+export interface TodayLearningProgress {
+  date: string;               // YYYY-MM-DD
+  alphabetCount: number;      // 학습한 알파벳 수
+  phonicsCount: number;       // 학습한 파닉스 패턴 수
+  wordsCount: number;         // 학습한 단어 수
+  speakingCount: number;      // 말하기 연습 횟수
+  gamesPlayed: number;        // 게임 플레이 횟수
+  totalMinutes: number;       // 총 학습 시간 (분)
+}
+
+// ============================================
+// 사용자 역할 및 인증 시스템 타입
+// ============================================
+
+/**
+ * 사용자 역할
+ * - superAdmin: 슈퍼관리자 (선생님 승인, 전체 관리)
+ * - teacher: 선생님 (학생 관리, 학습량 확인)
+ * - student: 학생 (학습 수행)
+ */
+export type UserRole = 'superAdmin' | 'teacher' | 'student';
+
+/**
+ * 계정 승인 상태
+ */
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected';
+
+/**
+ * 학급 정보
+ */
+export interface ClassInfo {
+  id: string;
+  name: string;                 // 학급명 (예: "1학년 2반")
+  grade?: string;               // 학년
+  teacherId: string;            // 담당 선생님 ID
+  teacherName: string;          // 담당 선생님 이름
+  studentIds: string[];         // 소속 학생 ID 목록
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+/**
+ * Firebase 사용자 프로필 (Firestore에 저장)
+ */
+export interface FirebaseUserProfile {
+  uid: string;                  // Firebase Auth UID
+  email: string;
+  displayName: string;
+  photoURL?: string;
+  role: UserRole;
+  approvalStatus: ApprovalStatus;  // 승인 상태 (선생님용)
+
+  // 학생 전용
+  classId?: string;             // 소속 학급 ID
+  teacherId?: string;           // 담당 선생님 ID
+  studentNumber?: string;       // 학생 번호
+
+  // 선생님 전용
+  schoolName?: string;          // 학교명
+  classIds?: string[];          // 담당 학급 ID 목록
+
+  // 공통
+  nickname?: string;            // 앱 내 닉네임
+  avatar?: string;              // 아바타
+  createdAt: Date;
+  updatedAt: Date;
+  lastLoginAt: Date;
+}
+
+/**
+ * 학생 학습 통계 (선생님/관리자 조회용)
+ */
+export interface StudentLearningStats {
+  oderId: string;
+  displayName: string;
+  classId?: string;
+  totalXp: number;
+  level: number;
+  currentStreak: number;
+  longestStreak: number;
+  totalWordsLearned: number;
+  totalSessionsCompleted: number;
+  totalTimeSpentMinutes: number;
+  lastStudyDate: Date;
+  weeklyProgress: {
+    date: string;
+    xpEarned: number;
+    minutesSpent: number;
+    wordsLearned: number;
+  }[];
+}
+
+/**
+ * 선생님 가입 요청
+ */
+export interface TeacherApprovalRequest {
+  uid: string;
+  email: string;
+  displayName: string;
+  schoolName: string;
+  requestedAt: Date;
+  status: ApprovalStatus;
+  reviewedBy?: string;          // 승인/거부한 관리자 ID
+  reviewedAt?: Date;
+  rejectReason?: string;        // 거부 사유
+}
+
+/**
+ * 학생 일괄 생성 요청
+ */
+export interface BulkStudentCreateRequest {
+  classId: string;
+  students: {
+    displayName: string;
+    studentNumber: string;
+    initialPassword?: string;
+  }[];
+}
+
+/**
+ * 인증 상태
+ */
+export interface AuthState {
+  user: FirebaseUserProfile | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error: string | null;
+}

@@ -27,6 +27,9 @@ yarn-error.log*
 .env*.local
 .env
 
+# Note: .env.production is committed for GitHub Pages deployment
+# API keys are client-side only (NEXT_PUBLIC_) and safe to expose
+
 # vercel
 .vercel
 

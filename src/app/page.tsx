@@ -2,12 +2,12 @@
 
 // ============================================
 // 메인 홈 페이지
-// 학습 모드 선택 및 대시보드
+// 학습 모드 선택 및 대시보드 + 일일 미션
 // ============================================
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   BookOpen,
   Mic,
@@ -17,12 +17,25 @@ import {
   Star,
   Flame,
   TrendingUp,
+  CheckCircle,
+  Circle,
+  ChevronRight,
+  Gift,
+  Sparkles,
+  Clock,
+  LogIn,
+  LogOut,
+  User,
+  Shield,
+  GraduationCap,
 } from 'lucide-react';
-import { useUserStore } from '@/store';
-import { Button, Card, XpProgress, PageLoading } from '@/components/ui';
-import { MiniCharacter } from '@/components/learning';
+import { useUserStore, useMissionStore, useAuthStore } from '@/store';
+import { Button, Card, XpProgress, PageLoading, ProgressBar } from '@/components/ui';
+import { MiniCharacter, CelebrationEffect } from '@/components/learning';
 import { cn } from '@/lib/utils';
 import { DIFFICULTY_NAMES } from '@/constants/phonicsData';
+import { MISSION_LINKS, DAILY_MISSION_BONUS, DAILY_LEARNING_GUIDE, DAILY_ESTIMATED_TIME, LEARNING_GUIDE_INFO } from '@/constants/gameData';
+import { DailyMission, DailyGoalItem } from '@/types';
 
 /**
  * 학습 모드 카드 데이터
@@ -75,9 +88,28 @@ const LEARNING_MODES = [
  */
 export default function HomePage() {
   const router = useRouter();
-  const { profile, stats, settings } = useUserStore();
+  const { profile, stats, settings, addXp } = useUserStore();
   const getCurrentLevel = useUserStore((state) => state.getCurrentLevel);
+  const {
+    dailyMissions,
+    missionStreak,
+    initializeDailyMissions,
+    checkAndRefreshMissions,
+    claimDailyBonus,
+    getTodayProgress,
+  } = useMissionStore();
+  const { user: authUser, signOut, isInitialized: authInitialized, initialize: initAuth } = useAuthStore();
   const [isReady, setIsReady] = useState(false);
+  const [showCelebration, setShowCelebration] = useState(false);
+  const [showMissionSection, setShowMissionSection] = useState(true);
+  const [showLearningGuide, setShowLearningGuide] = useState(true);
+
+  // Firebase 인증 초기화
+  useEffect(() => {
+    if (!authInitialized) {
+      initAuth();
+    }
+  }, [authInitialized, initAuth]);
 
   // 프로필이 없으면 온보딩으로
   useEffect(() => {
@@ -86,8 +118,10 @@ export default function HomePage() {
       router.push('/onboarding');
     } else {
       setIsReady(true);
+      // 미션 초기화/갱신
+      checkAndRefreshMissions(settings.difficulty);
     }
-  }, [profile, router]);
+  }, [profile, router, settings.difficulty]);
 
   // 로딩 중 또는 프로필 없음
   if (!isReady || !profile) {
@@ -95,9 +129,30 @@ export default function HomePage() {
   }
 
   const levelInfo = getCurrentLevel();
+  const missionProgress = getTodayProgress();
+  const allMissionsComplete = missionProgress.completed === missionProgress.total && missionProgress.total > 0;
+  const canClaimBonus = allMissionsComplete && dailyMissions && !dailyMissions.bonusXpClaimed;
+
+  // 일일 학습 가이드 데이터
+  const dailyGoals = DAILY_LEARNING_GUIDE[settings.difficulty];
+  const estimatedTime = DAILY_ESTIMATED_TIME[settings.difficulty];
+  const guideInfo = LEARNING_GUIDE_INFO[settings.difficulty];
+
+  // 일일 보너스 수령
+  const handleClaimBonus = () => {
+    const bonusXp = claimDailyBonus();
+    if (bonusXp > 0) {
+      addXp(bonusXp);
+      setShowCelebration(true);
+      setTimeout(() => setShowCelebration(false), 3000);
+    }
+  };
 
   return (
     <div className="min-h-screen pb-20">
+      {/* 축하 효과 */}
+      <CelebrationEffect isActive={showCelebration} />
+
       {/* 헤더 */}
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-amber-100">
         <div className="max-w-4xl mx-auto px-4 py-3">
@@ -113,13 +168,64 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* 스탯 */}
-            <div className="flex items-center gap-4">
+            {/* 스탯 및 메뉴 */}
+            <div className="flex items-center gap-3">
               {/* 스트릭 */}
               <div className="flex items-center gap-1 text-amber-600">
                 <Flame size={18} />
                 <span className="font-bold">{stats.currentStreak}</span>
               </div>
+
+              {/* 로그인/사용자 메뉴 */}
+              {authUser ? (
+                <div className="flex items-center gap-2">
+                  {/* 역할별 대시보드 링크 */}
+                  {authUser.role === 'superAdmin' && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => router.push('/admin')}
+                      className="p-2 rounded-full hover:bg-purple-100 transition-colors"
+                      title="관리자 대시보드"
+                    >
+                      <Shield size={20} className="text-purple-600" />
+                    </motion.button>
+                  )}
+                  {authUser.role === 'teacher' && authUser.approvalStatus === 'approved' && (
+                    <motion.button
+                      whileHover={{ scale: 1.1 }}
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => router.push('/teacher')}
+                      className="p-2 rounded-full hover:bg-green-100 transition-colors"
+                      title="선생님 대시보드"
+                    >
+                      <GraduationCap size={20} className="text-green-600" />
+                    </motion.button>
+                  )}
+                  {/* 로그아웃 */}
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={async () => {
+                      await signOut();
+                    }}
+                    className="p-2 rounded-full hover:bg-red-100 transition-colors"
+                    title="로그아웃"
+                  >
+                    <LogOut size={20} className="text-red-500" />
+                  </motion.button>
+                </div>
+              ) : (
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => router.push('/auth/login')}
+                  className="flex items-center gap-1 px-3 py-1.5 bg-amber-100 text-amber-700 rounded-full text-sm font-medium hover:bg-amber-200 transition-colors"
+                >
+                  <LogIn size={16} />
+                  <span>로그인</span>
+                </motion.button>
+              )}
 
               {/* 설정 */}
               <motion.button
@@ -189,6 +295,89 @@ export default function HomePage() {
           />
         </motion.div>
 
+        {/* 오늘의 학습 가이드 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mb-8"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <Clock size={24} className="text-blue-500" />
+              오늘의 학습 가이드
+            </h2>
+            <button
+              onClick={() => setShowLearningGuide(!showLearningGuide)}
+              className="text-gray-500 text-sm hover:text-gray-700"
+            >
+              {showLearningGuide ? '접기' : '펼치기'}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showLearningGuide && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                {/* 학습 가이드 헤더 카드 */}
+                <Card className="mb-4 bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <h3 className="font-bold text-gray-800 mb-1">{guideInfo.title}</h3>
+                      <p className="text-sm text-gray-600 mb-2">{guideInfo.description}</p>
+                      <div className="flex items-center gap-2 text-sm text-blue-600">
+                        <Clock size={14} />
+                        <span>예상 소요시간: 약 {estimatedTime}분</span>
+                      </div>
+                    </div>
+                    <div className="text-4xl">{settings.difficulty === 'beginner' ? '🌱' : settings.difficulty === 'intermediate' ? '🌿' : '🌳'}</div>
+                  </div>
+                </Card>
+
+                {/* 학습 팁 */}
+                <Card className="mb-4">
+                  <h4 className="font-medium text-gray-700 mb-2 flex items-center gap-2">
+                    <span>💡</span> 오늘의 학습 팁
+                  </h4>
+                  <ul className="space-y-1">
+                    {guideInfo.tips.map((tip, index) => (
+                      <li key={index} className="text-sm text-gray-600 flex items-start gap-2">
+                        <span className="text-blue-400">•</span>
+                        {tip}
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+
+                {/* 권장 학습량 목록 */}
+                <div className="space-y-2">
+                  {dailyGoals.map((goal, index) => (
+                    <DailyGoalCard
+                      key={goal.id}
+                      goal={goal}
+                      index={index}
+                      onClick={() => router.push(goal.link)}
+                    />
+                  ))}
+                </div>
+
+                {/* 총 예상 시간 요약 */}
+                <div className="mt-4 p-3 bg-gray-50 rounded-kid text-center">
+                  <p className="text-sm text-gray-600">
+                    위 학습을 모두 완료하면 약 <span className="font-bold text-blue-600">{estimatedTime}분</span>이 소요돼요!
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">
+                    하루에 조금씩 꾸준히 학습하는 것이 가장 좋아요 ✨
+                  </p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.div>
+
         {/* 학습 모드 선택 */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -215,6 +404,102 @@ export default function HomePage() {
               </motion.div>
             ))}
           </div>
+        </motion.div>
+
+        {/* 오늘의 미션 */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mt-8"
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <Sparkles size={24} className="text-amber-500" />
+              오늘의 미션
+              {missionStreak > 0 && (
+                <span className="ml-2 px-2 py-0.5 bg-orange-100 text-orange-600 text-xs rounded-full">
+                  {missionStreak}일 연속!
+                </span>
+              )}
+            </h2>
+            <button
+              onClick={() => setShowMissionSection(!showMissionSection)}
+              className="text-gray-500 text-sm hover:text-gray-700"
+            >
+              {showMissionSection ? '접기' : '펼치기'}
+            </button>
+          </div>
+
+          <AnimatePresence>
+            {showMissionSection && dailyMissions && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                {/* 진행률 바 */}
+                <Card className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">
+                      {missionProgress.completed} / {missionProgress.total} 완료
+                    </span>
+                    <span className="text-sm font-bold text-amber-600">
+                      {Math.round(missionProgress.percentage)}%
+                    </span>
+                  </div>
+                  <ProgressBar
+                    value={missionProgress.percentage}
+                    size="md"
+                    color={allMissionsComplete ? 'green' : 'amber'}
+                  />
+                </Card>
+
+                {/* 미션 목록 */}
+                <div className="space-y-3">
+                  {dailyMissions.missions.map((mission, index) => (
+                    <MissionCard
+                      key={mission.id}
+                      mission={mission}
+                      index={index}
+                      onClick={() => router.push(MISSION_LINKS[mission.type])}
+                    />
+                  ))}
+                </div>
+
+                {/* 보너스 수령 버튼 */}
+                {canClaimBonus && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="mt-4"
+                  >
+                    <Button
+                      size="lg"
+                      className="w-full bg-gradient-to-r from-amber-400 to-orange-400"
+                      onClick={handleClaimBonus}
+                      leftIcon={<Gift />}
+                    >
+                      일일 보너스 받기 (+{DAILY_MISSION_BONUS.allComplete} XP)
+                    </Button>
+                  </motion.div>
+                )}
+
+                {/* 이미 수령함 */}
+                {allMissionsComplete && dailyMissions.bonusXpClaimed && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    className="mt-4 p-4 bg-green-50 rounded-kid text-center"
+                  >
+                    <CheckCircle className="w-8 h-8 text-green-500 mx-auto mb-2" />
+                    <p className="text-green-700 font-medium">오늘의 미션 완료!</p>
+                    <p className="text-green-600 text-sm">내일 또 새로운 미션이 기다려요</p>
+                  </motion.div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* 빠른 복습 */}
@@ -362,6 +647,157 @@ function NavButton({
     >
       {icon}
       <span className="text-xs font-medium">{label}</span>
+    </motion.button>
+  );
+}
+
+/**
+ * 미션 카드 컴포넌트
+ */
+function MissionCard({
+  mission,
+  index,
+  onClick,
+}: {
+  mission: DailyMission;
+  index: number;
+  onClick: () => void;
+}) {
+  const progress = Math.min((mission.currentCount / mission.targetCount) * 100, 100);
+
+  return (
+    <motion.button
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.1 }}
+      whileHover={!mission.isCompleted ? { scale: 1.01 } : undefined}
+      whileTap={!mission.isCompleted ? { scale: 0.99 } : undefined}
+      onClick={onClick}
+      disabled={mission.isCompleted}
+      className={cn(
+        'w-full p-4 rounded-kid-lg text-left transition-all flex items-center gap-4',
+        mission.isCompleted
+          ? 'bg-green-50 border-2 border-green-200'
+          : 'bg-white border-2 border-gray-100 hover:border-amber-300 hover:shadow-md'
+      )}
+    >
+      {/* 이모지 */}
+      <div
+        className={cn(
+          'w-12 h-12 rounded-full flex items-center justify-center text-2xl',
+          mission.isCompleted ? 'bg-green-100' : 'bg-amber-100'
+        )}
+      >
+        {mission.isCompleted ? '✅' : mission.emoji}
+      </div>
+
+      {/* 내용 */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between mb-1">
+          <h3
+            className={cn(
+              'font-bold',
+              mission.isCompleted ? 'text-green-700' : 'text-gray-800'
+            )}
+          >
+            {mission.title}
+          </h3>
+          <span
+            className={cn(
+              'text-xs font-medium px-2 py-0.5 rounded-full',
+              mission.isCompleted
+                ? 'bg-green-100 text-green-600'
+                : 'bg-amber-100 text-amber-600'
+            )}
+          >
+            +{mission.xpReward} XP
+          </span>
+        </div>
+
+        <p
+          className={cn(
+            'text-sm mb-2',
+            mission.isCompleted ? 'text-green-600' : 'text-gray-500'
+          )}
+        >
+          {mission.description}
+        </p>
+
+        {/* 진행 바 */}
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${progress}%` }}
+              className={cn(
+                'h-full rounded-full',
+                mission.isCompleted ? 'bg-green-400' : 'bg-amber-400'
+              )}
+            />
+          </div>
+          <span
+            className={cn(
+              'text-xs font-medium',
+              mission.isCompleted ? 'text-green-600' : 'text-gray-500'
+            )}
+          >
+            {mission.currentCount}/{mission.targetCount}
+          </span>
+        </div>
+      </div>
+
+      {/* 화살표 */}
+      {!mission.isCompleted && (
+        <ChevronRight size={20} className="text-gray-400" />
+      )}
+    </motion.button>
+  );
+}
+
+/**
+ * 일일 학습 목표 카드 컴포넌트
+ */
+function DailyGoalCard({
+  goal,
+  index,
+  onClick,
+}: {
+  goal: DailyGoalItem;
+  index: number;
+  onClick: () => void;
+}) {
+  return (
+    <motion.button
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ delay: index * 0.05 }}
+      whileHover={{ scale: 1.01 }}
+      whileTap={{ scale: 0.99 }}
+      onClick={onClick}
+      className="w-full p-3 rounded-kid-lg text-left transition-all flex items-center gap-3 bg-white border-2 border-gray-100 hover:border-blue-300 hover:shadow-md"
+    >
+      {/* 이모지 */}
+      <div className="w-10 h-10 rounded-full flex items-center justify-center text-xl bg-blue-50">
+        {goal.emoji}
+      </div>
+
+      {/* 내용 */}
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center justify-between">
+          <h3 className="font-medium text-gray-800 text-sm">
+            {goal.title}
+          </h3>
+          <span className="text-xs text-gray-500">
+            ~{goal.estimatedMinutes}분
+          </span>
+        </div>
+        <p className="text-xs text-gray-500">
+          {goal.description} ({goal.targetCount}{goal.unit})
+        </p>
+      </div>
+
+      {/* 화살표 */}
+      <ChevronRight size={18} className="text-gray-400" />
     </motion.button>
   );
 }

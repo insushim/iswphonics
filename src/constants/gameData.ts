@@ -303,3 +303,342 @@ export const DAILY_GOALS = {
   targetWords: 20,      // 목표 단어
   targetMinutes: 30,    // 목표 학습 시간
 } as const;
+
+// ============================================
+// 일일 미션 시스템
+// ============================================
+
+import { DailyMission, MissionType, DifficultyLevel } from '@/types';
+
+/**
+ * 미션 템플릿 - 난이도별 미션 풀
+ */
+export const MISSION_TEMPLATES: Record<DifficultyLevel, Omit<DailyMission, 'id' | 'currentCount' | 'isCompleted'>[]> = {
+  beginner: [
+    // 학습 미션
+    { type: 'alphabet', title: '알파벳 학습', description: '알파벳 5개를 배워보세요', emoji: '🔤', targetCount: 5, xpReward: 30, order: 1 },
+    { type: 'phonics', title: '파닉스 기초', description: '파닉스 규칙 3개를 배워보세요', emoji: '🎵', targetCount: 3, xpReward: 40, order: 2 },
+    { type: 'words', title: '단어 배우기', description: '새로운 단어 5개를 배워보세요', emoji: '📚', targetCount: 5, xpReward: 35, order: 3 },
+    { type: 'speaking', title: '말하기 연습', description: '단어 3개를 따라 말해보세요', emoji: '🎤', targetCount: 3, xpReward: 40, order: 4 },
+    // 게임 미션
+    { type: 'wordMatch', title: '단어 매칭', description: '매칭 게임을 완료하세요', emoji: '🎯', targetCount: 1, xpReward: 50, order: 5 },
+    { type: 'memory', title: '메모리 게임', description: '메모리 게임을 완료하세요', emoji: '🧠', targetCount: 1, xpReward: 50, order: 6 },
+    { type: 'spelling', title: '철자 맞추기', description: '철자 게임에서 3문제를 맞추세요', emoji: '✏️', targetCount: 3, xpReward: 45, order: 7 },
+    { type: 'soundQuiz', title: '소리 퀴즈', description: '소리 퀴즈에서 3문제를 맞추세요', emoji: '🔊', targetCount: 3, xpReward: 45, order: 8 },
+  ],
+  intermediate: [
+    { type: 'alphabet', title: '알파벳 복습', description: '알파벳 10개를 복습하세요', emoji: '🔤', targetCount: 10, xpReward: 40, order: 1 },
+    { type: 'phonics', title: '파닉스 학습', description: '파닉스 규칙 5개를 배워보세요', emoji: '🎵', targetCount: 5, xpReward: 50, order: 2 },
+    { type: 'words', title: '단어 마스터', description: '새로운 단어 8개를 배워보세요', emoji: '📚', targetCount: 8, xpReward: 45, order: 3 },
+    { type: 'speaking', title: '발음 연습', description: '단어 5개를 따라 말해보세요', emoji: '🎤', targetCount: 5, xpReward: 50, order: 4 },
+    { type: 'wordMatch', title: '단어 매칭 챌린지', description: '매칭 게임에서 80점 이상 획득', emoji: '🎯', targetCount: 80, xpReward: 60, order: 5 },
+    { type: 'memory', title: '기억력 챌린지', description: '메모리 게임에서 100점 이상 획득', emoji: '🧠', targetCount: 100, xpReward: 60, order: 6 },
+    { type: 'spelling', title: '철자 챌린지', description: '철자 게임에서 5문제를 맞추세요', emoji: '✏️', targetCount: 5, xpReward: 55, order: 7 },
+    { type: 'soundQuiz', title: '청취력 테스트', description: '소리 퀴즈에서 5문제를 맞추세요', emoji: '🔊', targetCount: 5, xpReward: 55, order: 8 },
+  ],
+  advanced: [
+    { type: 'alphabet', title: '알파벳 완전 정복', description: '모든 알파벳을 완벽하게 복습', emoji: '🔤', targetCount: 26, xpReward: 60, order: 1 },
+    { type: 'phonics', title: '고급 파닉스', description: '파닉스 규칙 8개를 마스터하세요', emoji: '🎵', targetCount: 8, xpReward: 70, order: 2 },
+    { type: 'words', title: '단어 정복자', description: '새로운 단어 12개를 배워보세요', emoji: '📚', targetCount: 12, xpReward: 65, order: 3 },
+    { type: 'speaking', title: '발음 마스터', description: '단어 8개를 완벽하게 발음하세요', emoji: '🎤', targetCount: 8, xpReward: 70, order: 4 },
+    { type: 'wordMatch', title: '매칭 마스터', description: '매칭 게임에서 만점 획득', emoji: '🎯', targetCount: 100, xpReward: 80, order: 5 },
+    { type: 'memory', title: '기억력 마스터', description: '메모리 게임에서 150점 이상 획득', emoji: '🧠', targetCount: 150, xpReward: 80, order: 6 },
+    { type: 'spelling', title: '철자 마스터', description: '철자 게임에서 8문제를 맞추세요', emoji: '✏️', targetCount: 8, xpReward: 75, order: 7 },
+    { type: 'soundQuiz', title: '청취 마스터', description: '소리 퀴즈에서 8문제를 맞추세요', emoji: '🔊', targetCount: 8, xpReward: 75, order: 8 },
+  ],
+};
+
+/**
+ * 오늘의 미션 생성 (5개 랜덤 선택)
+ */
+export function generateDailyMissions(difficulty: DifficultyLevel, date: string): DailyMission[] {
+  const templates = MISSION_TEMPLATES[difficulty];
+
+  // 학습 미션 2개 + 게임 미션 3개 선택
+  const learningMissions = templates.filter(m => ['alphabet', 'phonics', 'words', 'speaking'].includes(m.type));
+  const gameMissions = templates.filter(m => ['wordMatch', 'memory', 'spelling', 'soundQuiz'].includes(m.type));
+
+  // 랜덤 섞기
+  const shuffledLearning = [...learningMissions].sort(() => Math.random() - 0.5);
+  const shuffledGames = [...gameMissions].sort(() => Math.random() - 0.5);
+
+  // 선택
+  const selectedMissions = [
+    ...shuffledLearning.slice(0, 2),
+    ...shuffledGames.slice(0, 3),
+  ];
+
+  // ID 생성 및 순서 재정렬
+  return selectedMissions.map((template, index) => ({
+    ...template,
+    id: `${date}-${template.type}-${index}`,
+    currentCount: 0,
+    isCompleted: false,
+    order: index + 1,
+  }));
+}
+
+/**
+ * 미션 타입별 링크
+ */
+export const MISSION_LINKS: Record<MissionType, string> = {
+  alphabet: '/learn/alphabet',
+  phonics: '/learn/phonics',
+  words: '/learn/words',
+  speaking: '/learn/speaking',
+  wordMatch: '/games/word-match',
+  memory: '/games/memory',
+  spelling: '/games/spelling',
+  soundQuiz: '/games/sound-quiz',
+};
+
+/**
+ * 일일 미션 완료 보너스 XP
+ */
+export const DAILY_MISSION_BONUS = {
+  allComplete: 100,     // 모든 미션 완료 시 보너스
+  perfectStreak: 50,    // 연속 완료 보너스 (매일)
+};
+
+// ============================================
+// 일일 학습 가이드 (권장 학습량)
+// ============================================
+
+import { DailyGoalItem, DailyGoalsByDifficulty } from '@/types';
+
+/**
+ * 난이도별 일일 권장 학습량
+ * - beginner: 유치원~초1 (하루 15-20분)
+ * - intermediate: 초2-3 (하루 20-30분)
+ * - advanced: 초4+ (하루 30-40분)
+ */
+export const DAILY_LEARNING_GUIDE: DailyGoalsByDifficulty = {
+  beginner: [
+    {
+      id: 'bg-alphabet',
+      category: 'alphabet',
+      title: '알파벳 학습',
+      description: '오늘 배울 알파벳',
+      emoji: '🔤',
+      targetCount: 3,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/alphabet',
+      estimatedMinutes: 5,
+    },
+    {
+      id: 'bg-phonics',
+      category: 'phonics',
+      title: '파닉스 규칙',
+      description: '소리 규칙 배우기',
+      emoji: '🎵',
+      targetCount: 2,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/phonics',
+      estimatedMinutes: 5,
+    },
+    {
+      id: 'bg-words',
+      category: 'words',
+      title: '단어 학습',
+      description: '새로운 단어 익히기',
+      emoji: '📚',
+      targetCount: 5,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/words',
+      estimatedMinutes: 5,
+    },
+    {
+      id: 'bg-speaking',
+      category: 'speaking',
+      title: '말하기 연습',
+      description: '따라 말하기',
+      emoji: '🎤',
+      targetCount: 3,
+      currentCount: 0,
+      unit: '회',
+      link: '/learn/speaking',
+      estimatedMinutes: 3,
+    },
+    {
+      id: 'bg-games',
+      category: 'games',
+      title: '복습 게임',
+      description: '재미있게 복습하기',
+      emoji: '🎮',
+      targetCount: 1,
+      currentCount: 0,
+      unit: '회',
+      link: '/games',
+      estimatedMinutes: 5,
+    },
+  ],
+  intermediate: [
+    {
+      id: 'im-alphabet',
+      category: 'alphabet',
+      title: '알파벳 복습',
+      description: '알파벳 완벽하게 익히기',
+      emoji: '🔤',
+      targetCount: 5,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/alphabet',
+      estimatedMinutes: 5,
+    },
+    {
+      id: 'im-phonics',
+      category: 'phonics',
+      title: '파닉스 규칙',
+      description: '다양한 소리 규칙',
+      emoji: '🎵',
+      targetCount: 3,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/phonics',
+      estimatedMinutes: 7,
+    },
+    {
+      id: 'im-words',
+      category: 'words',
+      title: '단어 학습',
+      description: '새로운 단어 마스터',
+      emoji: '📚',
+      targetCount: 8,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/words',
+      estimatedMinutes: 8,
+    },
+    {
+      id: 'im-speaking',
+      category: 'speaking',
+      title: '말하기 연습',
+      description: '정확한 발음 연습',
+      emoji: '🎤',
+      targetCount: 5,
+      currentCount: 0,
+      unit: '회',
+      link: '/learn/speaking',
+      estimatedMinutes: 5,
+    },
+    {
+      id: 'im-games',
+      category: 'games',
+      title: '복습 게임',
+      description: '게임으로 실력 다지기',
+      emoji: '🎮',
+      targetCount: 2,
+      currentCount: 0,
+      unit: '회',
+      link: '/games',
+      estimatedMinutes: 10,
+    },
+  ],
+  advanced: [
+    {
+      id: 'ad-alphabet',
+      category: 'alphabet',
+      title: '알파벳 마스터',
+      description: '모든 알파벳 완벽 숙지',
+      emoji: '🔤',
+      targetCount: 10,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/alphabet',
+      estimatedMinutes: 5,
+    },
+    {
+      id: 'ad-phonics',
+      category: 'phonics',
+      title: '고급 파닉스',
+      description: '복잡한 소리 규칙',
+      emoji: '🎵',
+      targetCount: 5,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/phonics',
+      estimatedMinutes: 10,
+    },
+    {
+      id: 'ad-words',
+      category: 'words',
+      title: '단어 정복',
+      description: '어려운 단어 도전',
+      emoji: '📚',
+      targetCount: 12,
+      currentCount: 0,
+      unit: '개',
+      link: '/learn/words',
+      estimatedMinutes: 10,
+    },
+    {
+      id: 'ad-speaking',
+      category: 'speaking',
+      title: '말하기 마스터',
+      description: '완벽한 발음 구사',
+      emoji: '🎤',
+      targetCount: 8,
+      currentCount: 0,
+      unit: '회',
+      link: '/learn/speaking',
+      estimatedMinutes: 8,
+    },
+    {
+      id: 'ad-games',
+      category: 'games',
+      title: '챌린지 게임',
+      description: '고득점 도전',
+      emoji: '🎮',
+      targetCount: 2,
+      currentCount: 0,
+      unit: '회',
+      link: '/games',
+      estimatedMinutes: 12,
+    },
+  ],
+};
+
+/**
+ * 난이도별 총 예상 학습 시간 (분)
+ */
+export const DAILY_ESTIMATED_TIME: Record<DifficultyLevel, number> = {
+  beginner: 20,      // 15-20분
+  intermediate: 30,  // 25-30분
+  advanced: 40,      // 35-45분
+};
+
+/**
+ * 난이도별 학습 권장 설명
+ */
+export const LEARNING_GUIDE_INFO: Record<DifficultyLevel, { title: string; description: string; tips: string[] }> = {
+  beginner: {
+    title: '🌱 초급 학습자',
+    description: '하루 15-20분 학습을 권장해요',
+    tips: [
+      '알파벳부터 차근차근 시작해요',
+      '그림과 소리를 함께 연결해요',
+      '게임으로 재미있게 복습해요',
+    ],
+  },
+  intermediate: {
+    title: '🌿 중급 학습자',
+    description: '하루 25-30분 학습을 권장해요',
+    tips: [
+      '파닉스 규칙을 익혀요',
+      '새로운 단어를 많이 배워요',
+      '말하기 연습으로 발음을 다듬어요',
+    ],
+  },
+  advanced: {
+    title: '🌳 고급 학습자',
+    description: '하루 35-45분 학습을 권장해요',
+    tips: [
+      '복잡한 발음 규칙에 도전해요',
+      '어려운 단어를 정복해요',
+      '게임에서 높은 점수에 도전해요',
+    ],
+  },
+};

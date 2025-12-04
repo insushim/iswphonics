@@ -14,6 +14,7 @@ import { Button, Card, ProgressBar } from '@/components/ui';
 import { CelebrationEffect } from '@/components/learning';
 import { getRandomWords } from '@/constants/wordData';
 import { cn, formatTime, shuffleArray } from '@/lib/utils';
+import { getWordImage } from '@/lib/images';
 
 /**
  * 게임 상태
@@ -27,6 +28,7 @@ interface MemoryCard {
   id: string;
   content: string;
   emoji: string;
+  imageUrl: string;  // 이미지 URL
   matchId: string;
   isFlipped: boolean;
   isMatched: boolean;
@@ -72,11 +74,13 @@ export default function MemoryGame() {
       const cardAId = `card-a-${index}`;
       const cardBId = `card-b-${index}`;
       const emoji = WORD_EMOJIS[word.word.toLowerCase()] || '📖';
+      const imageUrl = getWordImage(word.word);
 
       cardPairs.push({
         id: cardAId,
         content: word.word,
         emoji,
+        imageUrl,
         matchId: cardBId,
         isFlipped: false,
         isMatched: false,
@@ -86,6 +90,7 @@ export default function MemoryGame() {
         id: cardBId,
         content: word.word,
         emoji,
+        imageUrl,
         matchId: cardAId,
         isFlipped: false,
         isMatched: false,
@@ -381,6 +386,8 @@ function MemoryCardComponent({
   onClick: () => void;
 }) {
   const showFront = card.isFlipped || card.isMatched;
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   return (
     <motion.div
@@ -411,14 +418,35 @@ function MemoryCardComponent({
         {/* 앞면 (내용) */}
         <div
           className={cn(
-            'absolute inset-0 rounded-kid flex flex-col items-center justify-center',
+            'absolute inset-0 rounded-kid flex flex-col items-center justify-center overflow-hidden',
             'bg-white shadow-md',
             '[backface-visibility:hidden] [transform:rotateY(180deg)]',
             card.isMatched && 'bg-green-50 ring-2 ring-green-400'
           )}
         >
-          <span className="text-3xl mb-1">{card.emoji}</span>
-          <span className="text-xs font-medium text-gray-700">{card.content}</span>
+          {/* 이미지 */}
+          {!imageError ? (
+            <div className="w-full h-3/4 relative">
+              {!imageLoaded && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="text-2xl">{card.emoji}</span>
+                </div>
+              )}
+              <img
+                src={card.imageUrl}
+                alt={card.content}
+                className={cn(
+                  'w-full h-full object-cover transition-opacity',
+                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                )}
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageError(true)}
+              />
+            </div>
+          ) : (
+            <span className="text-3xl mb-1">{card.emoji}</span>
+          )}
+          <span className="text-xs font-medium text-gray-700 py-1">{card.content}</span>
         </div>
       </motion.button>
     </motion.div>

@@ -5,7 +5,7 @@
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getAnalytics, Analytics, isSupported } from 'firebase/analytics';
 import { getFirestore, Firestore } from 'firebase/firestore';
-import { getAuth, Auth } from 'firebase/auth';
+import { getAuth, Auth, GoogleAuthProvider } from 'firebase/auth';
 import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 /**
@@ -27,6 +27,12 @@ let analytics: Analytics | null = null;
 let db: Firestore;
 let auth: Auth;
 let storage: FirebaseStorage;
+
+// Google Provider
+export const googleProvider = new GoogleAuthProvider();
+
+// 슈퍼관리자 이메일 (환경변수에서 로드)
+export const SUPER_ADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPER_ADMIN_EMAIL || 'admin@iswphonics.com';
 
 /**
  * Firebase 초기화

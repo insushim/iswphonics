@@ -5,3 +5,5 @@
 export { useUserStore } from './useUserStore';
 export { useLearningStore } from './useLearningStore';
 export { useGameStore } from './useGameStore';
+export { useMissionStore } from './useMissionStore';
+export { useAuthStore } from './useAuthStore';

@@ -15,6 +15,7 @@ import { CelebrationEffect } from '@/components/learning';
 import { getRandomWords } from '@/constants/wordData';
 import { WordItem } from '@/types';
 import { cn, formatTime, shuffleArray } from '@/lib/utils';
+import { getWordImage } from '@/lib/images';
 
 /**
  * 게임 상태
@@ -30,6 +31,7 @@ interface MatchItem {
   type: 'word' | 'meaning';
   matchId: string;
   isMatched: boolean;
+  imageUrl?: string;  // 이미지 URL (단어 타입일 경우)
 }
 
 /**
@@ -68,6 +70,7 @@ export default function WordMatchGame() {
         type: 'word',
         matchId: meaningId,
         isMatched: false,
+        imageUrl: getWordImage(word.word),
       });
 
       matchItems.push({
@@ -391,7 +394,7 @@ function MatchCard({
       onClick={onClick}
       disabled={item.isMatched}
       className={cn(
-        'w-full p-4 rounded-kid text-center font-medium transition-all',
+        'w-full p-3 rounded-kid text-center font-medium transition-all',
         item.isMatched
           ? 'bg-green-100 text-green-600 cursor-default'
           : isWrong
@@ -401,7 +404,20 @@ function MatchCard({
               : 'bg-white hover:bg-gray-50 text-gray-800 shadow-sm'
       )}
     >
-      {item.content}
+      {/* 단어 타입일 경우 이미지 표시 */}
+      {item.type === 'word' && item.imageUrl && (
+        <div className="w-full h-16 mb-2 rounded-lg overflow-hidden bg-gray-100">
+          <img
+            src={item.imageUrl}
+            alt={item.content}
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = 'none';
+            }}
+          />
+        </div>
+      )}
+      <span>{item.content}</span>
       {item.isMatched && <span className="ml-2">✓</span>}
     </motion.button>
   );

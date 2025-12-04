@@ -2,15 +2,16 @@
 
 // ============================================
 // 단어 카드 컴포넌트
-// 단어 학습용 인터랙티브 카드
+// 단어 학습용 인터랙티브 카드 (이미지 지원)
 // ============================================
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Volume2, Mic, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Volume2, Mic, Eye, EyeOff, Sparkles, ImageOff } from 'lucide-react';
 import { WordItem } from '@/types';
 import { speak, isTTSAvailable } from '@/lib/speech';
 import { cn, highlightPattern } from '@/lib/utils';
+import { getWordImage, PLACEHOLDER_IMAGE } from '@/lib/images';
 
 /**
  * 단어 카드 Props
@@ -20,6 +21,7 @@ interface WordCardProps {
   highlightPatterns?: string[];
   showMeaning?: boolean;
   showPronunciation?: boolean;
+  showImage?: boolean;  // 이미지 표시 여부
   isActive?: boolean;
   onSpeak?: () => void;
   onRecord?: () => void;
@@ -70,6 +72,7 @@ export function WordCard({
   highlightPatterns = [],
   showMeaning = true,
   showPronunciation = true,
+  showImage = true,  // 기본적으로 이미지 표시
   isActive = false,
   onSpeak,
   onRecord,
@@ -78,24 +81,29 @@ export function WordCard({
 }: WordCardProps) {
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [meaningVisible, setMeaningVisible] = useState(showMeaning);
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   // 크기별 스타일
   const sizeStyles = {
     sm: {
       card: 'p-4',
       emoji: 'text-4xl',
+      image: 'w-24 h-24',
       word: 'text-xl',
       meaning: 'text-sm',
     },
     md: {
       card: 'p-6',
       emoji: 'text-6xl',
+      image: 'w-40 h-32',
       word: 'text-3xl',
       meaning: 'text-base',
     },
     lg: {
       card: 'p-8',
       emoji: 'text-8xl',
+      image: 'w-56 h-44',
       word: 'text-5xl',
       meaning: 'text-lg',
     },
@@ -103,6 +111,7 @@ export function WordCard({
 
   const styles = sizeStyles[size];
   const emoji = WORD_EMOJIS[word.word.toLowerCase()] || '📖';
+  const imageUrl = getWordImage(word.word);
 
   // 발음 재생
   const handleSpeak = async () => {
@@ -163,14 +172,38 @@ export function WordCard({
       animate={{ opacity: 1, y: 0 }}
     >
       <div className="flex flex-col items-center text-center">
-        {/* 이모지 */}
-        <motion.div
-          className={cn('mb-4', styles.emoji)}
-          animate={isSpeaking ? { scale: [1, 1.2, 1] } : {}}
-          transition={{ duration: 0.3 }}
-        >
-          {emoji}
-        </motion.div>
+        {/* 이미지 또는 이모지 */}
+        {showImage && !imageError ? (
+          <motion.div
+            className={cn('mb-4 relative rounded-lg overflow-hidden bg-gray-100', styles.image)}
+            animate={isSpeaking ? { scale: [1, 1.05, 1] } : {}}
+            transition={{ duration: 0.3 }}
+          >
+            {!imageLoaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <span className={styles.emoji}>{emoji}</span>
+              </div>
+            )}
+            <img
+              src={imageUrl}
+              alt={word.word}
+              className={cn(
+                'w-full h-full object-cover transition-opacity duration-300',
+                imageLoaded ? 'opacity-100' : 'opacity-0'
+              )}
+              onLoad={() => setImageLoaded(true)}
+              onError={() => setImageError(true)}
+            />
+          </motion.div>
+        ) : (
+          <motion.div
+            className={cn('mb-4', styles.emoji)}
+            animate={isSpeaking ? { scale: [1, 1.2, 1] } : {}}
+            transition={{ duration: 0.3 }}
+          >
+            {emoji}
+          </motion.div>
+        )}
 
         {/* 단어 */}
         <motion.div
@@ -271,6 +304,7 @@ interface WordListItemProps {
   word: WordItem;
   onClick?: () => void;
   isCompleted?: boolean;
+  showImage?: boolean;
   className?: string;
 }
 
@@ -278,9 +312,13 @@ export function WordListItem({
   word,
   onClick,
   isCompleted = false,
+  showImage = true,
   className,
 }: WordListItemProps) {
+  const [imageError, setImageError] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const emoji = WORD_EMOJIS[word.word.toLowerCase()] || '📖';
+  const imageUrl = getWordImage(word.word);
 
   return (
     <motion.div
@@ -294,8 +332,28 @@ export function WordListItem({
         className
       )}
     >
-      {/* 이모지 */}
-      <span className="text-3xl">{emoji}</span>
+      {/* 이미지 또는 이모지 */}
+      {showImage && !imageError ? (
+        <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0 relative">
+          {!imageLoaded && (
+            <div className="absolute inset-0 flex items-center justify-center text-2xl">
+              {emoji}
+            </div>
+          )}
+          <img
+            src={imageUrl}
+            alt={word.word}
+            className={cn(
+              'w-full h-full object-cover transition-opacity duration-300',
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+        </div>
+      ) : (
+        <span className="text-3xl flex-shrink-0">{emoji}</span>
+      )}
 
       {/* 단어 정보 */}
       <div className="flex-1 min-w-0">
