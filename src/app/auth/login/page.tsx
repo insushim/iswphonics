@@ -14,12 +14,13 @@ import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { signIn, signInGoogle, isLoading, error, clearError, user, isInitialized, initialize } = useAuthStore();
+  const { signIn, signInGoogle, error, clearError, user, isInitialized, initialize } = useAuthStore();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [localError, setLocalError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // 초기화
   useEffect(() => {
@@ -59,10 +60,24 @@ export default function LoginPage() {
       return;
     }
 
+    setIsSubmitting(true);
     try {
       await signIn(email, password);
-    } catch (err) {
-      // 에러는 스토어에서 처리됨
+    } catch (err: any) {
+      console.error('Login error:', err);
+      if (err.code === 'auth/user-not-found') {
+        setLocalError('등록되지 않은 이메일입니다.');
+      } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
+        setLocalError('비밀번호가 올바르지 않습니다.');
+      } else if (err.code === 'auth/invalid-email') {
+        setLocalError('유효하지 않은 이메일 형식입니다.');
+      } else if (err.code === 'auth/too-many-requests') {
+        setLocalError('로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.');
+      } else if (err.message) {
+        setLocalError(err.message);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -70,10 +85,16 @@ export default function LoginPage() {
     setLocalError('');
     clearError();
 
+    setIsSubmitting(true);
     try {
       await signInGoogle();
-    } catch (err) {
-      // 에러는 스토어에서 처리됨
+    } catch (err: any) {
+      console.error('Google login error:', err);
+      if (err.message) {
+        setLocalError(err.message);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -177,9 +198,9 @@ export default function LoginPage() {
               type="submit"
               size="lg"
               className="w-full"
-              disabled={isLoading}
+              disabled={isSubmitting}
             >
-              {isLoading ? '로그인 중...' : '로그인'}
+              {isSubmitting ? '로그인 중...' : '로그인'}
             </Button>
           </form>
 
@@ -196,7 +217,7 @@ export default function LoginPage() {
             size="lg"
             className="w-full flex items-center justify-center gap-2"
             onClick={handleGoogleLogin}
-            disabled={isLoading}
+            disabled={isSubmitting}
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
