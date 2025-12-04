@@ -59,8 +59,18 @@ export default function AdminRegisterPage() {
       setTimeout(() => {
         router.push('/admin');
       }, 2000);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Registration failed:', err);
+      // Firebase 에러 코드에 따른 상세 메시지
+      if (err.code === 'auth/email-already-in-use') {
+        setValidationError('이미 사용 중인 이메일입니다.');
+      } else if (err.code === 'auth/weak-password') {
+        setValidationError('비밀번호가 너무 약합니다. 6자 이상 입력해주세요.');
+      } else if (err.code === 'auth/invalid-email') {
+        setValidationError('유효하지 않은 이메일 형식입니다.');
+      } else if (err.message) {
+        setValidationError(err.message);
+      }
     } finally {
       setIsSubmitting(false);
     }
