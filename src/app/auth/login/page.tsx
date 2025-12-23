@@ -63,7 +63,7 @@ export default function LoginPage() {
     // 학생 ID인 경우 이메일 형식으로 변환 (@ 없으면 학생 도메인 추가)
     let loginEmail = email.trim();
     if (!loginEmail.includes('@')) {
-      loginEmail = `${loginEmail}@student.iswphonics.com`;
+      loginEmail = `${loginEmail}@phonics.kr`;
     }
 
     setIsSubmitting(true);

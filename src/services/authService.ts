@@ -547,8 +547,8 @@ export async function createStudentsInBulk(
 
   for (const student of students) {
     try {
-      // 이메일 형식 생성 (학번@school.phonics.com)
-      const email = `${student.studentNumber}@student.iswphonics.com`;
+      // 이메일 형식 생성 (간단한 형식)
+      const email = `${student.studentNumber}@phonics.kr`;
 
       // Firebase Auth에 계정 생성
       const userCredential = await createUserWithEmailAndPassword(
