@@ -88,7 +88,7 @@ const LEARNING_MODES = [
  */
 export default function HomePage() {
   const router = useRouter();
-  const { profile, stats, settings, addXp } = useUserStore();
+  const { profile, stats, settings, addXp, resetProfile } = useUserStore();
   const getCurrentLevel = useUserStore((state) => state.getCurrentLevel);
   const {
     dailyMissions,
@@ -111,14 +111,12 @@ export default function HomePage() {
     }
   }, [authInitialized, initAuth]);
 
-  // 프로필이 없으면 온보딩으로
+  // 프로필이 없으면 온보딩으로 (기존 로직 유지)
   useEffect(() => {
-    // Zustand가 hydrate된 후 체크
     if (!profile) {
       router.push('/onboarding');
     } else {
       setIsReady(true);
-      // 미션 초기화/갱신
       checkAndRefreshMissions(settings.difficulty);
     }
   }, [profile, router, settings.difficulty]);
@@ -208,6 +206,8 @@ export default function HomePage() {
                     whileTap={{ scale: 0.9 }}
                     onClick={async () => {
                       await signOut();
+                      resetProfile(); // 로컬 프로필도 삭제
+                      router.push('/auth/login');
                     }}
                     className="p-2 rounded-full hover:bg-red-100 transition-colors"
                     title="로그아웃"

@@ -55,7 +55,8 @@ export default function TeacherDashboard() {
   const [newClassGrade, setNewClassGrade] = useState('');
 
   // 학생 일괄 생성 폼
-  const [bulkStudentText, setBulkStudentText] = useState('');
+  const [studentPrefix, setStudentPrefix] = useState('');
+  const [studentCount, setStudentCount] = useState(10);
 
   // 초기화
   useEffect(() => {
@@ -139,24 +140,32 @@ export default function TeacherDashboard() {
   };
 
   const handleBulkCreateStudents = async () => {
-    if (!user || !selectedClass || !bulkStudentText.trim()) return;
+    const prefix = studentPrefix.trim();
+    if (!user || !selectedClass || !prefix || studentCount < 1) return;
 
-    // 텍스트 파싱: 한 줄에 "이름,학번,비밀번호" 형식
-    const lines = bulkStudentText.split('\n').filter(line => line.trim());
-    const students = lines.map(line => {
-      const parts = line.split(',').map(p => p.trim());
-      return {
-        displayName: parts[0] || '',
-        studentNumber: parts[1] || '',
-        password: parts[2] || 'phonics123', // 기본 비밀번호
-      };
-    }).filter(s => s.displayName && s.studentNumber);
+    // 접두사가 4자 미만이면 경고
+    if (prefix.length < 4) {
+      alert('접두사는 최소 4자 이상 입력해주세요.\n(예: isw1, student, 1ban 등)');
+      return;
+    }
 
-    if (students.length === 0) return;
+    // 접두사 + 숫자로 학생 목록 자동 생성
+    // 예: isw1 + 5명 = isw101, isw102, isw103, isw104, isw105
+    const students = [];
+    for (let i = 1; i <= studentCount; i++) {
+      const number = i.toString().padStart(2, '0');
+      const studentId = `${prefix}${number}`;
+      students.push({
+        displayName: studentId,
+        studentNumber: studentId,
+        password: studentId, // 비밀번호도 아이디와 동일 (최소 6자)
+      });
+    }
 
     try {
       await createStudentsInBulk(selectedClass.id, user.uid, students);
-      setBulkStudentText('');
+      setStudentPrefix('');
+      setStudentCount(10);
       setShowAddStudents(false);
       await loadStudents(selectedClass.id);
       await loadStudentStats(selectedClass.id);
@@ -576,24 +585,82 @@ export default function TeacherDashboard() {
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.9, opacity: 0 }}
-                className="bg-white rounded-2xl p-6 w-full max-w-lg"
+                className="bg-white rounded-2xl p-6 w-full max-w-md"
                 onClick={(e) => e.stopPropagation()}
               >
                 <h2 className="text-xl font-bold text-gray-800 mb-4">학생 일괄 추가</h2>
 
                 <div className="mb-4 p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
-                  <p className="font-medium mb-1">입력 형식</p>
-                  <p>한 줄에 하나씩: 이름,학번,비밀번호</p>
-                  <p className="text-xs mt-1">비밀번호를 생략하면 기본값(phonics123)이 사용됩니다.</p>
+                  <p className="font-medium mb-1">자동 생성 안내</p>
+                  <p>접두사와 인원수를 입력하면 자동으로 계정이 생성됩니다.</p>
+                  <p className="text-xs mt-1">예: "isw1" + 5명 → isw101/isw101, isw102/isw102, ... isw105/isw105</p>
+                  <p className="text-xs mt-1 text-blue-600 font-medium">* 접두사는 최소 4자 이상 필요합니다.</p>
                 </div>
 
-                <textarea
-                  value={bulkStudentText}
-                  onChange={(e) => setBulkStudentText(e.target.value)}
-                  placeholder={`홍길동,20240101,password123\n김철수,20240102\n이영희,20240103,mypass456`}
-                  rows={8}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none font-mono text-sm"
-                />
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      접두사 * (최소 4자)
+                    </label>
+                    <input
+                      type="text"
+                      value={studentPrefix}
+                      onChange={(e) => setStudentPrefix(e.target.value)}
+                      placeholder="예: isw1, 1ban, std1"
+                      minLength={4}
+                      maxLength={20}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none"
+                    />
+                    {studentPrefix.trim().length > 0 && studentPrefix.trim().length < 4 && (
+                      <p className="text-xs text-red-500 mt-1">접두사는 최소 4자 이상 입력해주세요.</p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      생성 인원수 (최대 40명)
+                    </label>
+                    <select
+                      value={studentCount}
+                      onChange={(e) => setStudentCount(Number(e.target.value))}
+                      className="w-full px-4 py-2 rounded-lg border border-gray-200 focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none"
+                    >
+                      {Array.from({ length: 40 }, (_, i) => i + 1).map((num) => (
+                        <option key={num} value={num}>
+                          {num}명
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* 미리보기 */}
+                  {studentPrefix.trim().length >= 4 && (
+                    <div className="p-3 bg-gray-50 rounded-lg">
+                      <p className="text-sm font-medium text-gray-700 mb-2">생성될 계정 미리보기</p>
+                      <div className="flex flex-wrap gap-1 max-h-24 overflow-y-auto">
+                        {Array.from({ length: Math.min(studentCount, 10) }, (_, i) => {
+                          const num = (i + 1).toString().padStart(2, '0');
+                          return (
+                            <span
+                              key={i}
+                              className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs"
+                            >
+                              {studentPrefix.trim()}{num}
+                            </span>
+                          );
+                        })}
+                        {studentCount > 10 && (
+                          <span className="px-2 py-1 text-gray-500 text-xs">
+                            ... 외 {studentCount - 10}명
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-500 mt-2">
+                        * 아이디와 비밀번호가 동일하게 생성됩니다.
+                      </p>
+                    </div>
+                  )}
+                </div>
 
                 <div className="flex gap-3 mt-6">
                   <Button
@@ -606,9 +673,9 @@ export default function TeacherDashboard() {
                   <Button
                     className="flex-1"
                     onClick={handleBulkCreateStudents}
-                    disabled={!bulkStudentText.trim()}
+                    disabled={studentPrefix.trim().length < 4}
                   >
-                    추가하기
+                    {studentCount}명 추가하기
                   </Button>
                 </div>
               </motion.div>

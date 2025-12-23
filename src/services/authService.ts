@@ -80,10 +80,12 @@ export async function signInWithEmail(email: string, password: string): Promise<
   const auth = getFirebaseAuth();
 
   const userCredential = await signInWithEmailAndPassword(auth, email, password);
-  const userProfile = await getUserProfile(userCredential.user.uid);
+  let userProfile = await getUserProfile(userCredential.user.uid);
 
+  // 프로필이 없으면 자동 생성 (슈퍼관리자 이메일 체크 포함)
   if (!userProfile) {
-    throw new Error('사용자 프로필을 찾을 수 없습니다.');
+    console.log('사용자 프로필 없음 - 자동 생성 중...');
+    userProfile = await createUserProfileFromAuth(userCredential.user);
   }
 
   // 마지막 로그인 시간 업데이트
@@ -137,6 +139,92 @@ export async function resetPassword(email: string): Promise<void> {
 // ============================================
 
 /**
+ * Firebase Auth 사용자로부터 프로필 자동 생성
+ * (이미 Auth에 등록된 사용자가 Firestore 프로필이 없을 때 사용)
+ */
+async function createUserProfileFromAuth(user: User): Promise<FirebaseUserProfile> {
+  const db = getFirestoreDb();
+
+  // 슈퍼관리자 이메일인지 확인
+  const isSuperAdmin = user.email === SUPER_ADMIN_EMAIL;
+
+  // 저장된 가입 의도 역할 확인 (회원가입 시도 중 실패한 경우)
+  let pendingRole: UserRole | null = null;
+  let pendingData: { schoolName?: string; displayName?: string } = {};
+
+  if (typeof window !== 'undefined') {
+    const pendingSignup = localStorage.getItem('pendingSignupRole');
+    if (pendingSignup) {
+      try {
+        const parsed = JSON.parse(pendingSignup);
+        if (parsed.email === user.email) {
+          pendingRole = parsed.role;
+          pendingData = { schoolName: parsed.schoolName, displayName: parsed.displayName };
+        }
+      } catch (e) {
+        console.error('Failed to parse pending signup:', e);
+      }
+      // 사용 후 삭제
+      localStorage.removeItem('pendingSignupRole');
+    }
+  }
+
+  const role: UserRole = isSuperAdmin ? 'superAdmin' : (pendingRole || 'student');
+
+  // 선생님은 승인 대기, 나머지는 즉시 승인
+  const approvalStatus: ApprovalStatus = role === 'teacher' ? 'pending' : 'approved';
+
+  const now = new Date();
+  const displayName = pendingData.displayName || user.displayName || user.email?.split('@')[0] || '사용자';
+
+  const userProfile: FirebaseUserProfile = {
+    uid: user.uid,
+    email: user.email || '',
+    displayName,
+    photoURL: user.photoURL || undefined,
+    role,
+    approvalStatus,
+    schoolName: pendingData.schoolName,
+    createdAt: now,
+    updatedAt: now,
+    lastLoginAt: now,
+  };
+
+  // Firestore에 저장할 데이터 (undefined 제거)
+  const firestoreData: Record<string, unknown> = {
+    uid: userProfile.uid,
+    email: userProfile.email,
+    displayName: userProfile.displayName,
+    role: userProfile.role,
+    approvalStatus: userProfile.approvalStatus,
+    createdAt: Timestamp.fromDate(now),
+    updatedAt: Timestamp.fromDate(now),
+    lastLoginAt: Timestamp.fromDate(now),
+  };
+
+  // photoURL이 있을 때만 추가
+  if (user.photoURL) {
+    firestoreData.photoURL = user.photoURL;
+  }
+
+  // schoolName이 있을 때만 추가
+  if (pendingData.schoolName) {
+    firestoreData.schoolName = pendingData.schoolName;
+  }
+
+  await setDoc(doc(db, 'users', user.uid), firestoreData);
+
+  // 선생님이면 승인 요청도 생성
+  if (role === 'teacher') {
+    await createTeacherApprovalRequest(user.uid, user.email || '', displayName, pendingData.schoolName || '');
+  }
+
+  console.log(`사용자 프로필 생성 완료: ${user.email}, 역할: ${role}`);
+
+  return userProfile;
+}
+
+/**
  * 사용자 프로필 생성
  */
 async function createUserProfile(
@@ -177,13 +265,26 @@ async function createUserProfile(
     lastLoginAt: now,
   };
 
-  // Firestore에 저장
-  await setDoc(doc(db, 'users', user.uid), {
-    ...userProfile,
+  // Firestore에 저장할 데이터 (undefined 값 제거)
+  const firestoreData: Record<string, unknown> = {
+    uid: user.uid,
+    email: user.email || '',
+    displayName,
+    role: actualRole,
+    approvalStatus,
     createdAt: Timestamp.fromDate(now),
     updatedAt: Timestamp.fromDate(now),
     lastLoginAt: Timestamp.fromDate(now),
-  });
+  };
+
+  // 선택적 필드는 값이 있을 때만 추가
+  if (user.photoURL) firestoreData.photoURL = user.photoURL;
+  if (additionalData?.schoolName) firestoreData.schoolName = additionalData.schoolName;
+  if (additionalData?.classId) firestoreData.classId = additionalData.classId;
+  if (additionalData?.teacherId) firestoreData.teacherId = additionalData.teacherId;
+  if (additionalData?.studentNumber) firestoreData.studentNumber = additionalData.studentNumber;
+
+  await setDoc(doc(db, 'users', user.uid), firestoreData);
 
   // 선생님이면 승인 요청도 생성
   if (role === 'teacher' && !isSuperAdmin) {

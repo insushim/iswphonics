@@ -126,6 +126,16 @@ export const useAuthStore = create<AuthState>()(
       signUp: async (email, password, displayName, role, additionalData) => {
         set({ isLoading: true, error: null });
 
+        // 역할 정보를 localStorage에 저장 (프로필 생성 실패 시 복구용)
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('pendingSignupRole', JSON.stringify({
+            email,
+            role,
+            displayName,
+            schoolName: additionalData?.schoolName,
+          }));
+        }
+
         try {
           const userProfile = await signUpWithEmail(
             email,
@@ -134,16 +144,24 @@ export const useAuthStore = create<AuthState>()(
             role,
             additionalData
           );
+          // 성공 시 localStorage 정리
+          if (typeof window !== 'undefined') {
+            localStorage.removeItem('pendingSignupRole');
+          }
           set({ user: userProfile, isLoading: false });
         } catch (error: any) {
+          console.error('SignUp error:', { code: error.code, message: error.message });
+
           let errorMessage = '회원가입에 실패했습니다.';
 
           if (error.code === 'auth/email-already-in-use') {
-            errorMessage = '이미 사용 중인 이메일입니다.';
+            errorMessage = '이미 사용 중인 이메일입니다. 로그인을 시도해주세요.';
           } else if (error.code === 'auth/weak-password') {
             errorMessage = '비밀번호가 너무 약합니다. 6자 이상 입력해주세요.';
           } else if (error.code === 'auth/invalid-email') {
             errorMessage = '유효하지 않은 이메일 형식입니다.';
+          } else if (error.message) {
+            errorMessage = error.message;
           }
 
           set({ isLoading: false, error: errorMessage });
@@ -159,16 +177,25 @@ export const useAuthStore = create<AuthState>()(
           const userProfile = await signInWithEmail(email, password);
           set({ user: userProfile, isLoading: false });
         } catch (error: any) {
+          // 상세 에러 로깅
+          console.error('Firebase Auth Error:', {
+            code: error.code,
+            message: error.message,
+            fullError: error
+          });
+
           let errorMessage = '로그인에 실패했습니다.';
 
           if (error.code === 'auth/user-not-found') {
-            errorMessage = '등록되지 않은 이메일입니다.';
+            errorMessage = '등록되지 않은 이메일입니다. 회원가입을 먼저 해주세요.';
           } else if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
             errorMessage = '비밀번호가 올바르지 않습니다.';
           } else if (error.code === 'auth/too-many-requests') {
             errorMessage = '로그인 시도가 너무 많습니다. 잠시 후 다시 시도해주세요.';
           } else if (error.code === 'auth/invalid-email') {
             errorMessage = '유효하지 않은 이메일 형식입니다.';
+          } else if (error.code) {
+            errorMessage = `로그인 실패: ${error.code}`;
           }
 
           set({ isLoading: false, error: errorMessage });
