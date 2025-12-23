@@ -56,13 +56,19 @@ export default function LoginPage() {
     clearError();
 
     if (!email.trim() || !password.trim()) {
-      setLocalError('이메일과 비밀번호를 입력해주세요.');
+      setLocalError('이메일/학생ID와 비밀번호를 입력해주세요.');
       return;
+    }
+
+    // 학생 ID인 경우 이메일 형식으로 변환 (@ 없으면 학생 도메인 추가)
+    let loginEmail = email.trim();
+    if (!loginEmail.includes('@')) {
+      loginEmail = `${loginEmail}@student.iswphonics.com`;
     }
 
     setIsSubmitting(true);
     try {
-      await signIn(email, password);
+      await signIn(loginEmail, password);
     } catch (err: any) {
       console.error('Login error:', err);
       if (err.code === 'auth/user-not-found') {
@@ -141,21 +147,22 @@ export default function LoginPage() {
 
           {/* 로그인 폼 */}
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* 이메일 */}
+            {/* 이메일 또는 학생 ID */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                이메일
+                이메일 또는 학생ID
               </label>
               <div className="relative">
                 <Mail size={20} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
-                  type="email"
+                  type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="이메일을 입력하세요"
+                  placeholder="이메일 또는 학생ID (예: isw001)"
                   className="w-full pl-10 pr-4 py-3 rounded-kid border border-gray-200 focus:border-amber-400 focus:ring-2 focus:ring-amber-100 outline-none transition-all"
                 />
               </div>
+              <p className="text-xs text-gray-500 mt-1">학생은 ID만 입력 (예: isw001)</p>
             </div>
 
             {/* 비밀번호 */}

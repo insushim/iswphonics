@@ -22,6 +22,8 @@ import {
   UserPlus,
   Flame,
   Star,
+  Copy,
+  CheckCircle,
 } from 'lucide-react';
 import { useAuthStore } from '@/store';
 import { Button, Card, PageLoading, ProgressBar } from '@/components/ui';
@@ -57,6 +59,9 @@ export default function TeacherDashboard() {
   // 학생 일괄 생성 폼
   const [studentPrefix, setStudentPrefix] = useState('');
   const [studentCount, setStudentCount] = useState(10);
+  const [createdAccounts, setCreatedAccounts] = useState<{id: string; password: string}[]>([]);
+  const [showCreatedAccounts, setShowCreatedAccounts] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
 
   // 초기화
   useEffect(() => {
@@ -152,6 +157,7 @@ export default function TeacherDashboard() {
     // 접두사 + 숫자로 학생 목록 자동 생성
     // 예: isw1 + 5명 = isw101, isw102, isw103, isw104, isw105
     const students = [];
+    const accountsList: {id: string; password: string}[] = [];
     for (let i = 1; i <= studentCount; i++) {
       const number = i.toString().padStart(2, '0');
       const studentId = `${prefix}${number}`;
@@ -160,17 +166,23 @@ export default function TeacherDashboard() {
         studentNumber: studentId,
         password: studentId, // 비밀번호도 아이디와 동일 (최소 6자)
       });
+      accountsList.push({ id: studentId, password: studentId });
     }
 
+    setIsCreating(true);
     try {
       await createStudentsInBulk(selectedClass.id, user.uid, students);
+      // 생성된 계정 정보 저장 후 결과 화면 표시
+      setCreatedAccounts(accountsList);
+      setShowAddStudents(false);
+      setShowCreatedAccounts(true);
       setStudentPrefix('');
       setStudentCount(10);
-      setShowAddStudents(false);
-      await loadStudents(selectedClass.id);
-      await loadStudentStats(selectedClass.id);
     } catch (error) {
       console.error('학생 일괄 생성 실패:', error);
+      alert('학생 생성 중 오류가 발생했습니다.');
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -673,11 +685,85 @@ export default function TeacherDashboard() {
                   <Button
                     className="flex-1"
                     onClick={handleBulkCreateStudents}
-                    disabled={studentPrefix.trim().length < 4}
+                    disabled={studentPrefix.trim().length < 4 || isCreating}
                   >
-                    {studentCount}명 추가하기
+                    {isCreating ? '생성 중...' : `${studentCount}명 추가하기`}
                   </Button>
                 </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 생성된 계정 결과 모달 */}
+        <AnimatePresence>
+          {showCreatedAccounts && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-2xl p-6 w-full max-w-lg max-h-[80vh] overflow-hidden flex flex-col"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <CheckCircle className="text-green-500" size={28} />
+                  <h2 className="text-xl font-bold text-gray-800">학생 계정 생성 완료!</h2>
+                </div>
+
+                <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
+                  <p className="font-medium mb-1">⚠️ 중요 안내</p>
+                  <p>학생 계정 생성으로 인해 자동 로그아웃됩니다.</p>
+                  <p>아래 정보를 복사한 후 다시 로그인해주세요.</p>
+                </div>
+
+                <div className="flex-1 overflow-y-auto mb-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="text-sm font-medium text-gray-700">생성된 계정 ({createdAccounts.length}명)</p>
+                      <button
+                        onClick={() => {
+                          const text = createdAccounts.map(a => `${a.id} / ${a.password}`).join('\n');
+                          navigator.clipboard.writeText(text);
+                          alert('클립보드에 복사되었습니다!');
+                        }}
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+                      >
+                        <Copy size={14} />
+                        복사
+                      </button>
+                    </div>
+                    <div className="space-y-1 max-h-48 overflow-y-auto">
+                      {createdAccounts.map((account, idx) => (
+                        <div key={idx} className="flex justify-between text-sm py-1 border-b border-gray-200 last:border-0">
+                          <span className="font-mono text-gray-800">{account.id}</span>
+                          <span className="text-gray-500">비밀번호: {account.password}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-blue-50 rounded-lg p-3 mb-4">
+                  <p className="text-sm text-blue-800">
+                    <strong>학생 로그인 방법:</strong> ID만 입력 (예: {createdAccounts[0]?.id})
+                  </p>
+                </div>
+
+                <Button
+                  className="w-full"
+                  onClick={() => {
+                    setShowCreatedAccounts(false);
+                    setCreatedAccounts([]);
+                    router.push('/auth/login');
+                  }}
+                >
+                  확인 후 다시 로그인
+                </Button>
               </motion.div>
             </motion.div>
           )}
