@@ -3,16 +3,23 @@
 // ============================================
 // 말하기 연습 컴포넌트
 // 마이크 녹음 및 발음 평가
+// + 비용 최적화: 캐싱, 로컬 평가, Rate Limiting
 // ============================================
 
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, MicOff, Volume2, RefreshCw, Check, X } from 'lucide-react';
+import { Mic, MicOff, Volume2, RefreshCw, Check, X, AlertCircle } from 'lucide-react';
 import { SpeechRecognitionResult } from '@/types';
 import { AudioRecorder, AudioLevelAnalyzer, blobToBase64, speak, isTTSAvailable } from '@/lib/speech';
-import { evaluateAudioPronunciation, isGeminiConfigured } from '@/lib/gemini';
+import {
+  evaluateAudioPronunciation,
+  evaluateAudioPronunciationOptimized,
+  isGeminiConfigured,
+  getPronunciationRateLimit,
+} from '@/lib/gemini';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui';
+import { useAuthStore } from '@/store/useAuthStore';
 
 /**
  * 말하기 연습 Props
@@ -49,6 +56,16 @@ export function SpeakingPractice({
   const [recorder] = useState(() => new AudioRecorder());
   const [analyzer, setAnalyzer] = useState<AudioLevelAnalyzer | null>(null);
   const [isSpeaking, setIsSpeaking] = useState(false);
+
+  // 비용 최적화: Rate Limit 정보
+  const [rateLimitInfo, setRateLimitInfo] = useState<{
+    remaining: number;
+    limit: number;
+  } | null>(null);
+  const [evaluationSource, setEvaluationSource] = useState<'cache' | 'local' | 'api' | null>(null);
+
+  // 사용자 ID 가져오기
+  const { user } = useAuthStore();
 
   // 자동 발음 재생
   useEffect(() => {
@@ -133,7 +150,7 @@ export function SpeakingPractice({
     }
   };
 
-  // 녹음 중지 및 평가
+  // 녹음 중지 및 평가 (비용 최적화 적용)
   const stopRecording = async () => {
     setState('processing');
     analyzer?.cleanup();
@@ -148,15 +165,24 @@ export function SpeakingPractice({
       return;
     }
 
-    // Gemini API로 평가
+    // Gemini API로 평가 (비용 최적화 적용)
     if (isGeminiConfigured()) {
       try {
         const base64 = await blobToBase64(audioBlob);
-        const evaluation = await evaluateAudioPronunciation(base64, targetWord);
+        const oderId = user?.uid || 'anonymous';
 
-        setResult(evaluation);
+        // 최적화된 발음 평가 사용 (캐싱 + 로컬 평가 + Rate Limiting)
+        const optimizedResult = await evaluateAudioPronunciationOptimized(
+          base64,
+          targetWord,
+          oderId
+        );
+
+        setResult(optimizedResult.result);
+        setEvaluationSource(optimizedResult.source);
+        setRateLimitInfo(optimizedResult.rateLimitInfo);
         setState('result');
-        onResult?.(evaluation);
+        onResult?.(optimizedResult.result);
       } catch (err) {
         console.error('발음 평가 실패:', err);
         setError('발음 평가에 실패했습니다. 다시 시도해주세요.');
@@ -171,6 +197,7 @@ export function SpeakingPractice({
         feedback: '잘했어요! 계속 연습해봐요! 🎉',
       };
       setResult(defaultResult);
+      setEvaluationSource('local');
       setState('result');
       onResult?.(defaultResult);
     }
@@ -179,6 +206,7 @@ export function SpeakingPractice({
   // 다시 시도
   const retry = () => {
     setResult(null);
+    setEvaluationSource(null);
     setState('idle');
   };
 
@@ -361,6 +389,19 @@ export function SpeakingPractice({
                 />
               </div>
             </div>
+
+            {/* Rate Limit 정보 표시 */}
+            {rateLimitInfo && (
+              <div className="mb-4 text-xs text-gray-400">
+                오늘 남은 연습: {rateLimitInfo.remaining}/{rateLimitInfo.limit}회
+                {evaluationSource && (
+                  <span className="ml-2">
+                    ({evaluationSource === 'cache' ? '캐시' :
+                      evaluationSource === 'local' ? '로컬' : 'API'} 평가)
+                  </span>
+                )}
+              </div>
+            )}
 
             {/* 버튼들 */}
             <div className="flex gap-3 justify-center">

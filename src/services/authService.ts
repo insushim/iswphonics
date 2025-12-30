@@ -1,6 +1,7 @@
 // ============================================
 // Firebase 인증 서비스
 // 로그인, 회원가입, 사용자 관리
+// + 비용 최적화: 메모리 캐싱 적용
 // ============================================
 
 import {
@@ -37,6 +38,7 @@ import {
   StudentLearningStats,
   UserStats,
 } from '@/types';
+import { firebaseCache, CacheKeys, CacheTTL } from '@/lib/costOptimization';
 
 // ============================================
 // 인증 함수들
@@ -295,9 +297,16 @@ async function createUserProfile(
 }
 
 /**
- * 사용자 프로필 조회
+ * 사용자 프로필 조회 (캐싱 적용)
  */
 export async function getUserProfile(uid: string): Promise<FirebaseUserProfile | null> {
+  // 캐시 확인
+  const cacheKey = CacheKeys.userProfile(uid);
+  const cached = firebaseCache.get<FirebaseUserProfile>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const db = getFirestoreDb();
   const docRef = doc(db, 'users', uid);
   const docSnap = await getDoc(docRef);
@@ -307,12 +316,17 @@ export async function getUserProfile(uid: string): Promise<FirebaseUserProfile |
   }
 
   const data = docSnap.data();
-  return {
+  const profile = {
     ...data,
     createdAt: data.createdAt?.toDate() || new Date(),
     updatedAt: data.updatedAt?.toDate() || new Date(),
     lastLoginAt: data.lastLoginAt?.toDate() || new Date(),
   } as FirebaseUserProfile;
+
+  // 캐시 저장
+  firebaseCache.set(cacheKey, profile, CacheTTL.userProfile);
+
+  return profile;
 }
 
 /**
@@ -326,7 +340,7 @@ async function updateLastLogin(uid: string): Promise<void> {
 }
 
 /**
- * 사용자 프로필 업데이트
+ * 사용자 프로필 업데이트 (캐시 무효화)
  */
 export async function updateUserProfile(
   uid: string,
@@ -337,6 +351,9 @@ export async function updateUserProfile(
     ...updates,
     updatedAt: Timestamp.now(),
   });
+
+  // 캐시 무효화
+  firebaseCache.invalidate(CacheKeys.userProfile(uid));
 }
 
 // ============================================
@@ -492,9 +509,16 @@ export async function createClass(
 }
 
 /**
- * 학급 목록 조회 (선생님용)
+ * 학급 목록 조회 (선생님용, 캐싱 적용)
  */
 export async function getClassesByTeacher(teacherId: string): Promise<ClassInfo[]> {
+  // 캐시 확인
+  const cacheKey = CacheKeys.classesByTeacher(teacherId);
+  const cached = firebaseCache.get<ClassInfo[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const db = getFirestoreDb();
   const q = query(
     collection(db, 'classes'),
@@ -502,7 +526,7 @@ export async function getClassesByTeacher(teacherId: string): Promise<ClassInfo[
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => {
+  const classes = snapshot.docs.map((doc) => {
     const data = doc.data();
     return {
       ...data,
@@ -510,6 +534,11 @@ export async function getClassesByTeacher(teacherId: string): Promise<ClassInfo[
       updatedAt: data.updatedAt?.toDate() || new Date(),
     } as ClassInfo;
   });
+
+  // 캐시 저장
+  firebaseCache.set(cacheKey, classes, CacheTTL.classInfo);
+
+  return classes;
 }
 
 /**
@@ -606,9 +635,16 @@ export async function createStudentsInBulk(
 }
 
 /**
- * 학급 학생 목록 조회
+ * 학급 학생 목록 조회 (캐싱 적용)
  */
 export async function getStudentsByClass(classId: string): Promise<FirebaseUserProfile[]> {
+  // 캐시 확인
+  const cacheKey = CacheKeys.studentsByClass(classId);
+  const cached = firebaseCache.get<FirebaseUserProfile[]>(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const db = getFirestoreDb();
   const q = query(
     collection(db, 'users'),
@@ -617,7 +653,7 @@ export async function getStudentsByClass(classId: string): Promise<FirebaseUserP
   );
 
   const snapshot = await getDocs(q);
-  return snapshot.docs.map((doc) => {
+  const students = snapshot.docs.map((doc) => {
     const data = doc.data();
     return {
       ...data,
@@ -626,6 +662,11 @@ export async function getStudentsByClass(classId: string): Promise<FirebaseUserP
       lastLoginAt: data.lastLoginAt?.toDate() || new Date(),
     } as FirebaseUserProfile;
   });
+
+  // 캐시 저장
+  firebaseCache.set(cacheKey, students, CacheTTL.studentList);
+
+  return students;
 }
 
 /**

@@ -1,10 +1,17 @@
 // ============================================
 // Google Gemini API 연동
 // 음성 인식 및 발음 평가 기능
+// + 비용 최적화: 캐싱, 로컬 평가, Rate Limiting
 // ============================================
 
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { SpeechRecognitionResult } from '@/types';
+import {
+  optimizedPronunciationEvaluation,
+  evaluateLocally,
+  checkRateLimit,
+  getCostOptimizationStats,
+} from './costOptimization';
 
 /**
  * Gemini API 클라이언트 인스턴스
@@ -295,4 +302,83 @@ export async function generateWordHint(
     console.error('힌트 생성 오류:', error);
     return `이것은 "${meaning}"(이)라는 뜻이에요!`;
   }
+}
+
+// ============================================
+// 비용 최적화된 발음 평가 함수들
+// ============================================
+
+/**
+ * 최적화된 오디오 발음 평가
+ * 캐싱 → 로컬 평가 → Rate Limit → API 순서로 처리
+ */
+export async function evaluateAudioPronunciationOptimized(
+  audioBase64: string,
+  expectedWord: string,
+  oderId: string = 'anonymous'
+): Promise<{
+  result: SpeechRecognitionResult;
+  source: 'cache' | 'local' | 'api';
+  rateLimitInfo: { remaining: number; limit: number };
+}> {
+  try {
+    // 1. 먼저 오디오를 텍스트로 변환 (이 부분은 API 필요)
+    const transcript = await transcribeAudio(audioBase64);
+
+    // 2. 최적화된 발음 평가 사용
+    return await optimizedPronunciationEvaluation(
+      expectedWord,
+      transcript,
+      oderId,
+      async (word: string, text: string) => {
+        return await evaluatePronunciation(word, text);
+      }
+    );
+  } catch (error) {
+    console.error('최적화 발음 평가 오류:', error);
+
+    // 폴백: 로컬 평가
+    const localResult = evaluateLocally(expectedWord, '');
+    localResult.feedback = '음성을 인식할 수 없었어요. 다시 시도해볼까요? 🎤';
+
+    const rateInfo = await checkRateLimit(oderId);
+
+    return {
+      result: localResult,
+      source: 'local',
+      rateLimitInfo: { remaining: rateInfo.remaining, limit: rateInfo.limit },
+    };
+  }
+}
+
+/**
+ * Rate Limit 정보 조회
+ */
+export async function getPronunciationRateLimit(oderId: string): Promise<{
+  allowed: boolean;
+  remaining: number;
+  limit: number;
+}> {
+  return await checkRateLimit(oderId);
+}
+
+/**
+ * 비용 최적화 통계 조회
+ */
+export async function getOptimizationStats(): Promise<{
+  cacheSize: number;
+  todayApiCalls: number;
+  estimatedSavings: string;
+}> {
+  return await getCostOptimizationStats();
+}
+
+/**
+ * 로컬 발음 평가 (API 없이)
+ */
+export function evaluatePronunciationLocally(
+  expectedWord: string,
+  spokenText: string
+): SpeechRecognitionResult {
+  return evaluateLocally(expectedWord, spokenText);
 }
