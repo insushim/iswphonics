@@ -27,7 +27,7 @@ type LearnMode = 'select' | 'learn' | 'practice' | 'complete';
 export default function WordsLearnPage() {
   const router = useRouter();
   const { settings, addXp, incrementWordsLearned, updateStreak } = useUserStore();
-  const { character, setCharacterEmotion, recordAnswer } = useLearningStore();
+  const { character, setCharacterEmotion, recordAnswer, startSession, endSession } = useLearningStore();
 
   const [mode, setMode] = useState<LearnMode>('select');
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -59,6 +59,7 @@ export default function WordsLearnPage() {
     setCurrentIndex(0);
     setLearnedWords(new Set());
     setCorrectCount(0);
+    startSession('words', settings.difficulty);
     setCharacterEmotion('happy', '단어를 배워볼까요?');
   };
 
@@ -71,6 +72,7 @@ export default function WordsLearnPage() {
     setCurrentIndex(0);
     setLearnedWords(new Set());
     setCorrectCount(0);
+    startSession('words', settings.difficulty);
     setCharacterEmotion('happy', '랜덤 단어 학습 시작!');
   };
 
@@ -121,6 +123,9 @@ export default function WordsLearnPage() {
   const completeLesson = () => {
     setMode('complete');
     setShowCelebration(true);
+
+    // 세션 종료 및 저장
+    endSession();
 
     // 보상 계산
     const xpEarned = correctCount * 10 + learnedWords.size * 5 + 50;

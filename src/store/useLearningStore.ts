@@ -15,6 +15,7 @@ import {
 } from '@/types';
 import { XP_REWARDS, ENCOURAGEMENT_MESSAGES } from '@/constants/gameData';
 import { AlphabetItem, PhonicsRule, WordItem } from '@/types';
+import { saveSession, saveProgress } from '@/lib/db';
 
 /**
  * 학습 스토어 상태 인터페이스
@@ -177,6 +178,23 @@ export const useLearningStore = create<LearningState>((set, get) => ({
     }
 
     const totalXp = state.sessionXp + bonusXp;
+
+    // 세션 정보 저장 (IndexedDB)
+    if (state.currentSession) {
+      const completedSession: LearningSession = {
+        ...state.currentSession,
+        endedAt: new Date(),
+        itemsStudied: state.currentItemIndex + 1,
+        correctAnswers: state.correctAnswers,
+        totalQuestions: totalAnswers,
+        xpEarned: totalXp,
+      };
+
+      // 비동기로 저장 (에러 시 콘솔 출력)
+      saveSession(completedSession).catch((err) => {
+        console.error('세션 저장 실패:', err);
+      });
+    }
 
     set({
       currentSession: null,

@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Filter } from 'lucide-react';
-import { useUserStore } from '@/store';
+import { useUserStore, useLearningStore } from '@/store';
 import { Button, Card, ProgressBar } from '@/components/ui';
 import { PhonicsCard, PhonicsList, Character, CelebrationEffect } from '@/components/learning';
 import { PHONICS_RULES, CATEGORY_NAMES, DIFFICULTY_CATEGORIES } from '@/constants/phonicsData';
@@ -22,6 +22,8 @@ import { cn } from '@/lib/utils';
 export default function PhonicsLearnPage() {
   const router = useRouter();
   const { settings, addXp, updateStreak } = useUserStore();
+  const { startSession, endSession } = useLearningStore();
+  const [sessionStarted, setSessionStarted] = useState(false);
 
   const [selectedCategory, setSelectedCategory] = useState<PhonicsCategory | 'all'>('all');
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | 'all'>(
@@ -53,6 +55,12 @@ export default function PhonicsLearnPage() {
     } else {
       setExpandedRuleId(ruleId);
 
+      // 첫 규칙 클릭 시 세션 시작
+      if (!sessionStarted) {
+        startSession('phonics', settings.difficulty);
+        setSessionStarted(true);
+      }
+
       // 처음 본 규칙이면 학습 완료 처리
       if (!studiedRules.has(ruleId)) {
         setStudiedRules((prev) => new Set([...prev, ruleId]));
@@ -63,13 +71,14 @@ export default function PhonicsLearnPage() {
 
   // 모든 규칙 학습 완료 체크
   useEffect(() => {
-    if (filteredRules.length > 0 && studiedRules.size === filteredRules.length) {
+    if (filteredRules.length > 0 && studiedRules.size === filteredRules.length && sessionStarted) {
       setShowCelebration(true);
+      endSession(); // 세션 종료 및 저장
       addXp(50); // 완료 보너스
       updateStreak();
       setTimeout(() => setShowCelebration(false), 3000);
     }
-  }, [studiedRules.size, filteredRules.length, addXp, updateStreak]);
+  }, [studiedRules.size, filteredRules.length, addXp, updateStreak, sessionStarted, endSession]);
 
   // 카테고리 목록
   const categories: (PhonicsCategory | 'all')[] = [

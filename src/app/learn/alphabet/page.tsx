@@ -27,7 +27,7 @@ type LearnMode = 'view' | 'practice' | 'complete';
 export default function AlphabetLearnPage() {
   const router = useRouter();
   const { addXp, incrementWordsLearned, updateStreak } = useUserStore();
-  const { character, setCharacterEmotion, recordAnswer } = useLearningStore();
+  const { character, setCharacterEmotion, recordAnswer, startSession, endSession } = useLearningStore();
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [mode, setMode] = useState<LearnMode>('view');
@@ -37,10 +37,11 @@ export default function AlphabetLearnPage() {
   const currentLetter = ALPHABET_DATA[currentIndex];
   const progress = ((currentIndex + 1) / ALPHABET_DATA.length) * 100;
 
-  // 학습 시작 시 인사
+  // 학습 시작 시 세션 시작
   useEffect(() => {
+    startSession('alphabet', 'beginner');
     setCharacterEmotion('happy', '알파벳을 배워볼까요? 🎵');
-  }, [setCharacterEmotion]);
+  }, [startSession, setCharacterEmotion]);
 
   // 다음 알파벳
   const goNext = () => {
@@ -85,6 +86,9 @@ export default function AlphabetLearnPage() {
     setMode('complete');
     setShowCelebration(true);
 
+    // 세션 종료 및 저장
+    endSession();
+
     // XP 및 통계 업데이트
     addXp(correctCount * 10 + 30); // 정답당 10XP + 완료 보너스 30XP
     incrementWordsLearned(26);
@@ -100,6 +104,7 @@ export default function AlphabetLearnPage() {
     setCurrentIndex(0);
     setMode('view');
     setCorrectCount(0);
+    startSession('alphabet', 'beginner');
     setCharacterEmotion('happy', '다시 시작해볼까요?');
   };
 

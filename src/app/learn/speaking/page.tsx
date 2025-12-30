@@ -9,7 +9,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Mic, RotateCcw, ChevronRight, Volume2 } from 'lucide-react';
-import { useUserStore } from '@/store';
+import { useUserStore, useLearningStore } from '@/store';
 import { Button, Card, ProgressBar, CircularProgress } from '@/components/ui';
 import { SpeakingPractice, Character, CelebrationEffect } from '@/components/learning';
 import { WORD_DATA, getRandomWords } from '@/constants/wordData';
@@ -37,6 +37,7 @@ interface PracticeResult {
 export default function SpeakingPracticePage() {
   const router = useRouter();
   const { settings, addXp, updateStreak } = useUserStore();
+  const { startSession, endSession } = useLearningStore();
 
   const [mode, setMode] = useState<Mode>('intro');
   const [words, setWords] = useState<WordItem[]>([]);
@@ -55,6 +56,7 @@ export default function SpeakingPracticePage() {
     setCurrentIndex(0);
     setResults([]);
     setCurrentAttempts(0);
+    startSession('sentences', settings.difficulty); // 말하기는 sentences 모드 사용
     setMode('practice');
   };
 
@@ -96,6 +98,9 @@ export default function SpeakingPracticePage() {
   const completePractice = () => {
     setMode('summary');
     setShowCelebration(true);
+
+    // 세션 종료 및 저장
+    endSession();
 
     // 점수 계산
     const correctCount = results.filter((r) => r.result.isCorrect).length;
