@@ -25,18 +25,22 @@ export default function LoginPage() {
   // 초기화
   useEffect(() => {
     if (!isInitialized) {
+      console.log('[Login] 인증 초기화 시작...');
       initialize();
     }
   }, [isInitialized, initialize]);
 
   // 이미 로그인되어 있으면 적절한 페이지로 리다이렉트
   useEffect(() => {
+    console.log('[Login] 사용자 상태 체크:', { isInitialized, user: user?.email });
     if (user) {
+      console.log('[Login] 이미 로그인됨 - 리다이렉트:', user.role);
       redirectByRole(user.role, user.approvalStatus);
     }
   }, [user]);
 
   const redirectByRole = (role: string, approvalStatus: string) => {
+    console.log('[Login] 역할별 리다이렉트:', { role, approvalStatus });
     if (role === 'superAdmin') {
       router.push('/admin');
     } else if (role === 'teacher') {
@@ -56,6 +60,7 @@ export default function LoginPage() {
     clearError();
 
     if (!email.trim() || !password.trim()) {
+      console.log('[Login] 입력값 누락');
       setLocalError('이메일/학생ID와 비밀번호를 입력해주세요.');
       return;
     }
@@ -66,11 +71,13 @@ export default function LoginPage() {
       loginEmail = `${loginEmail}@phonics.kr`;
     }
 
+    console.log('[Login] 로그인 시도:', loginEmail);
     setIsSubmitting(true);
     try {
       await signIn(loginEmail, password);
+      console.log('[Login] 로그인 성공');
     } catch (err: any) {
-      console.error('Login error:', err);
+      console.error('[Login] 로그인 실패:', err);
       if (err.code === 'auth/user-not-found') {
         setLocalError('등록되지 않은 이메일입니다.');
       } else if (err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential') {
@@ -88,14 +95,16 @@ export default function LoginPage() {
   };
 
   const handleGoogleLogin = async () => {
+    console.log('[Login] Google 로그인 시도');
     setLocalError('');
     clearError();
 
     setIsSubmitting(true);
     try {
       await signInGoogle();
+      console.log('[Login] Google 로그인 성공');
     } catch (err: any) {
-      console.error('Google login error:', err);
+      console.error('[Login] Google 로그인 실패:', err);
       if (err.message) {
         setLocalError(err.message);
       }

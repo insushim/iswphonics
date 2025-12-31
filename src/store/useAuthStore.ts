@@ -83,13 +83,18 @@ export const useAuthStore = create<AuthState>()(
 
       // 초기화 (앱 시작시 호출)
       initialize: async () => {
+        console.log('[Auth] initialize 시작...');
         const auth = getFirebaseAuth();
 
         return new Promise((resolve) => {
           const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+            console.log('[Auth] onAuthStateChanged 호출됨:', firebaseUser?.email || 'null');
+
             if (firebaseUser) {
               try {
+                console.log('[Auth] 프로필 로드 시도:', firebaseUser.uid);
                 const userProfile = await getUserProfile(firebaseUser.uid);
+                console.log('[Auth] 프로필 로드 성공:', userProfile?.email);
                 set({
                   firebaseUser,
                   user: userProfile,
@@ -97,7 +102,7 @@ export const useAuthStore = create<AuthState>()(
                   isInitialized: true,
                 });
               } catch (error) {
-                console.error('사용자 프로필 로드 실패:', error);
+                console.error('[Auth] 사용자 프로필 로드 실패:', error);
                 set({
                   firebaseUser: null,
                   user: null,
@@ -107,6 +112,7 @@ export const useAuthStore = create<AuthState>()(
                 });
               }
             } else {
+              console.log('[Auth] Firebase 사용자 없음 - 로그아웃 상태');
               set({
                 firebaseUser: null,
                 user: null,
@@ -124,6 +130,7 @@ export const useAuthStore = create<AuthState>()(
 
       // 회원가입
       signUp: async (email, password, displayName, role, additionalData) => {
+        console.log('[Auth] 회원가입 시도:', { email, role });
         set({ isLoading: true, error: null });
 
         // 역할 정보를 localStorage에 저장 (프로필 생성 실패 시 복구용)
@@ -144,13 +151,14 @@ export const useAuthStore = create<AuthState>()(
             role,
             additionalData
           );
+          console.log('[Auth] 회원가입 성공:', userProfile.email);
           // 성공 시 localStorage 정리
           if (typeof window !== 'undefined') {
             localStorage.removeItem('pendingSignupRole');
           }
           set({ user: userProfile, isLoading: false });
         } catch (error: any) {
-          console.error('SignUp error:', { code: error.code, message: error.message });
+          console.error('[Auth] 회원가입 실패:', { code: error.code, message: error.message });
 
           let errorMessage = '회원가입에 실패했습니다.';
 
@@ -171,14 +179,16 @@ export const useAuthStore = create<AuthState>()(
 
       // 로그인
       signIn: async (email, password) => {
+        console.log('[Auth] 로그인 시도:', email);
         set({ isLoading: true, error: null });
 
         try {
           const userProfile = await signInWithEmail(email, password);
+          console.log('[Auth] 로그인 성공:', userProfile.email, '역할:', userProfile.role);
           set({ user: userProfile, isLoading: false });
         } catch (error: any) {
           // 상세 에러 로깅
-          console.error('Firebase Auth Error:', {
+          console.error('[Auth] 로그인 실패:', {
             code: error.code,
             message: error.message,
             fullError: error
@@ -230,13 +240,28 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true, error: null });
 
         try {
+          console.log('[Auth] 로그아웃 시작...');
           await logOut();
+
+          // 모든 관련 localStorage 클리어
+          if (typeof window !== 'undefined') {
+            console.log('[Auth] localStorage 클리어 중...');
+            localStorage.removeItem('phonics-quest-user');
+            localStorage.removeItem('phonics-quest-auth');
+            localStorage.removeItem('phonics-quest-missions');
+            localStorage.removeItem('pendingSignupRole');
+            console.log('[Auth] localStorage 클리어 완료');
+          }
+
           set({
             user: null,
             firebaseUser: null,
             isLoading: false,
+            isInitialized: false, // 초기화 상태도 리셋
           });
+          console.log('[Auth] 로그아웃 완료');
         } catch (error) {
+          console.error('[Auth] 로그아웃 실패:', error);
           set({ isLoading: false, error: '로그아웃에 실패했습니다.' });
           throw error;
         }

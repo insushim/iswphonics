@@ -107,19 +107,41 @@ export default function HomePage() {
   // Firebase 인증 초기화
   useEffect(() => {
     if (!authInitialized) {
+      console.log('[Auth] 인증 초기화 시작...');
       initAuth();
     }
   }, [authInitialized, initAuth]);
 
-  // 프로필이 없으면 온보딩으로 (기존 로직 유지)
+  // 인증 상태 확인 및 리다이렉트
   useEffect(() => {
-    if (!profile) {
-      router.push('/onboarding');
-    } else {
-      setIsReady(true);
-      checkAndRefreshMissions(settings.difficulty);
+    console.log('[Auth] 상태 체크:', { authInitialized, authUser: authUser?.email, profile: profile?.nickname, isReady });
+
+    if (!authInitialized) {
+      console.log('[Auth] 아직 초기화 중...');
+      return; // 인증 초기화 대기
     }
-  }, [profile, router, settings.difficulty]);
+
+    // 인증되지 않은 경우 로그인 페이지로
+    if (!authUser) {
+      console.log('[Auth] 미인증 상태 - 로그인 페이지로 이동');
+      setIsReady(false); // 중요: isReady를 false로 리셋
+      router.push('/auth/login');
+      return;
+    }
+
+    // 인증됐지만 프로필이 없으면 온보딩으로
+    if (!profile) {
+      console.log('[Auth] 프로필 없음 - 온보딩으로 이동');
+      setIsReady(false); // 중요: isReady를 false로 리셋
+      router.push('/onboarding');
+      return;
+    }
+
+    // 모든 조건 충족 - 앱 시작
+    console.log('[Auth] 인증 완료, 앱 시작');
+    setIsReady(true);
+    checkAndRefreshMissions(settings.difficulty);
+  }, [authInitialized, authUser, profile, router, settings.difficulty]);
 
   // 로딩 중 또는 프로필 없음
   if (!isReady || !profile) {
@@ -205,8 +227,11 @@ export default function HomePage() {
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
                     onClick={async () => {
-                      await signOut();
-                      resetProfile(); // 로컬 프로필도 삭제
+                      console.log('[Logout] 로그아웃 시작');
+                      setIsReady(false); // 즉시 로딩 상태로 전환
+                      resetProfile(); // 로컬 프로필 먼저 삭제
+                      await signOut(); // Firebase 로그아웃 (localStorage 클리어 포함)
+                      console.log('[Logout] 로그아웃 완료, 로그인 페이지로 이동');
                       router.push('/auth/login');
                     }}
                     className="p-2 rounded-full hover:bg-red-100 transition-colors"

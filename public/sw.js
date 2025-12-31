@@ -3,14 +3,13 @@
 // PWA 오프라인 지원
 // ============================================
 
-const CACHE_NAME = 'phonics-quest-v1';
-const BASE_PATH = '/iswphonics';
+const CACHE_NAME = 'phonics-quest-v2';
 
 // 캐시할 정적 파일들
 const STATIC_ASSETS = [
-  BASE_PATH + '/',
-  BASE_PATH + '/manifest.json',
-  BASE_PATH + '/offline.html',
+  '/',
+  '/manifest.json',
+  '/offline.html',
 ];
 
 // 설치 이벤트 - 정적 파일 캐싱
@@ -55,7 +54,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(request.url);
 
   // API 요청은 네트워크만 사용
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith(BASE_PATH + '/api/')) {
+  if (url.pathname.startsWith('/api/')) {
     event.respondWith(fetch(request));
     return;
   }
@@ -65,7 +64,7 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .catch(() => {
-          return caches.match(BASE_PATH + '/offline.html');
+          return caches.match('/offline.html');
         })
     );
     return;
@@ -121,8 +120,8 @@ self.addEventListener('push', (event) => {
 
   const options = {
     body: event.data?.text() || '새로운 학습 콘텐츠가 있어요!',
-    icon: BASE_PATH + '/icons/icon-192x192.png',
-    badge: BASE_PATH + '/icons/badge-72x72.png',
+    icon: '/icons/icon-192x192.png',
+    badge: '/icons/badge-72x72.png',
     vibrate: [100, 50, 100],
     data: {
       dateOfArrival: Date.now(),
@@ -141,7 +140,7 @@ self.addEventListener('notificationclick', (event) => {
   event.notification.close();
 
   event.waitUntil(
-    clients.openWindow(BASE_PATH + '/')
+    clients.openWindow('/')
   );
 });
 
